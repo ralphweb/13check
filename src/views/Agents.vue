@@ -1,6 +1,108 @@
 <template>
-<div v-bind:class="{'container-fluid app transition':true}">
+<div id="app" v-bind:class="{'container-fluid app transition':true}">
     <Loader></Loader>
+    <div class="sidebar">
+      <router-link to="/"><div class="branding"></div></router-link>
+      <router-link to="/" class="menu-item"><i class="fas fa-chart-pie fa-2x"></i></router-link> 
+			<router-link to="/agentes" class="menu-item"><i class="fas fa-headset fa-2x"></i></router-link>
+    </div>
+    <div class="content">
+        <div class="top">
+            <div class="toolbar">
+                <button class="btn btn-success cargar-datos d-flex justify-content-center align-items-center" @click="createAgent">Crear nuevo agente</button>
+            </div>
+            <div class="toolbar">
+                <a href="/logout">Cerrar Sesión</a>
+            </div>
+        </div>
+        <div class="middle">
+            <div class="toolbar">
+                <span>Buscar Agente</span>
+                <i class="fas fa-headset fa-2x ml-3"></i>
+                <label for="query" class="d-flex flex-column w-25">
+                  <span>Buscar:</span>
+                  <input type="search" v-model="query" name="query" id="query">
+                </label>
+                <button class="btn btn-danger cargar-datos d-flex justify-content-center align-items-center" @click="loadAgents">Buscar</button>
+            </div>
+        </div>
+        <div class="body">
+          <div class="row">
+            <div class="horizontal-scroll">
+              <table class="table table-striped table-hover">
+                <thead>
+                  <tr>
+                    <th scope="col">Fecha de creación</th>
+                    <th scope="col">Nombre</th>
+                    <th scope="col">Correo electrónico</th>
+                    <th scope="col">Última sesión</th>
+                    <th scope="col">Rol</th>
+                    <th scope="col">Estado</th>
+                    <th scope="col" class="text-center" style="width:150px">Acciones</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr v-for="(agent,c) in agents" v-bind:key="c">
+                    <th scope="row">{{agent.created_at | moment('DD-MM-YYYY [-] HH:mm')}}</th>
+                    <td>{{agent.nombre}}</td>
+                    <td>{{agent.email}}</td>
+                    <td v-if="agent.lastSession">{{agent.lastSession.login_at | moment('DD-MM-YYYY [-] HH:mm')}}</td>
+                    <td v-if="!agent.lastSession">Sin datos</td>
+                    <td>{{agent.role}}</td>
+                    <td><i class="text-success fas fa-circle" v-if="agent.active"></i><i class="text-danger fas fa-circle" v-if="!agent.active"></i></td>
+                    <td class="d-flex justify-content-between">
+                      <button class="btn text-light btn-warning" v-if="agent.role!='ADMIN'||user.role=='ADMIN'" @click="editAgent(agent)"><i class="fas fa-pencil-alt"></i></button>
+                      <button class="btn text-light btn-danger" @click="deleteAgent(agent)" v-if="user.role=='ADMIN'"><i class="fas fa-trash-alt"></i></button>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+    </div>
+
+    <div v-bind:class="{'conversations-modal':true,'active':openAgent}">
+          <div class="top">
+            <h3 v-if="currentAgent._id!=null">Editar Agente</h3>
+            <h3 v-if="currentAgent._id==null">Crear nuevo Agente</h3>
+            <button class="btn-close" @click="openAgent=false">x</button>
+          </div>
+          <div class="bottom flex-column py-3">
+            <div v-bind:class="{'form-group':true,'text-danger':currentAgent.nombre.length==0}">
+              <label for="nombre">Nombre</label><small class="ml-3" v-if="currentAgent.nombre.length==0">Debe ingresar nombre</small>
+              <input type="text" class="form-control" id="nombre" placeholder="Nombre..." v-model="currentAgent.nombre">
+            </div>
+            <div v-bind:class="{'form-group':true,'text-danger':currentAgent.email.length==0}">
+              <label for="email">Correo electrónico</label><small class="ml-3" v-if="currentAgent.email.length==0">Debe ingresar correo electrónico</small>
+              <input type="email" class="form-control" id="email" placeholder="Correo electrónico..." v-model="currentAgent.email">
+            </div>
+            <div class="form-group">
+              <label for="rol">Rol</label>
+              <select v-model="currentAgent.role" class="form-control" id="rol">
+                <option value="ADMIN" v-if="user.role=='ADMIN'">ADMIN</option>
+                <option value="AGENT">AGENT</option>
+              </select>
+            </div>
+            <div v-bind:class="{'danger-zone':true}">
+              <span class="text-danger" v-if="currentAgent._id!=null">Ingrese sólo si desea modificar</span>
+              <div class="form-group">
+                <label for="pass" v-if="currentAgent._id!=null">Nueva contraseña</label>
+                <label for="pass" v-if="currentAgent._id==null">Contraseña</label>
+                <input type="password" class="form-control" id="pass" v-model="newpassword">
+              </div>
+              <div class="form-group">
+                <label for="passconfirm">Confirmar contraseña</label>
+                <input type="password" class="form-control" id="passconfirm" v-model="newpasswordconfirm">
+              </div>
+            </div>
+            <div class="d-flex justify-content-between">
+              <button class="btn btn-default cargar-datos d-flex justify-content-center align-items-center" @click="openAgent=false">Cancelar</button>
+              <button v-bind:class="{'btn btn-success text-success cargar-datos d-flex flex-column justify-content-center align-items-center':true,'disabled btn-danger text-danger':newpassword!=newpasswordconfirm||newpassword.length<4||currentAgent.nombre.length==0||currentAgent.email.length==0}" @click="saveAgent" v-if="currentAgent._id==null">Crear nuevo agente<small v-if="newpassword!=newpasswordconfirm||newpassword.length<4">Contraseña no coincide</small></button>
+              <button v-bind:class="{'btn btn-success text-success cargar-datos d-flex flex-column justify-content-center align-items-center':true,'disabled btn-danger text-danger':newpassword!=newpasswordconfirm}" @click="saveAgent" v-if="currentAgent._id!=null">Guardar cambios<small v-if="newpassword!=newpasswordconfirm">Contraseña no coincide</small></button>
+            </div>
+          </div>
+    </div>
 </div>
 </template>
 
@@ -9,23 +111,73 @@ import store from "@/store";
 import moment from 'moment';
 import Loader from '@/components/Loader.vue';
 import {
-    getDashboard,
-    getConversation,
-    getIntents, 
-    getTopics
+    getAgents,
+    saveAgent,
+    deleteAgent
 } from '@/helpers/API.js';
 import IOdometer from 'vue-odometer';
 import 'odometer/themes/odometer-theme-default.css';
+import ChartDataLabels from 'chartjs-plugin-datalabels';
+import BarChart from '@/components/BarChart.vue';
+import PieChart from '@/components/PieChart.vue';
 
 export default {
-    name: 'Home',
+    name: 'Agentes',
     components: {
         Loader,
-        IOdometer
+        IOdometer,
+        BarChart,
+        PieChart
     },
     data() {
         return {
-            loaded: false
+            optionsPie: {
+                cutoutPercentage:70,
+                legend: false,
+                responsive: true,
+                maintainAspectRatio: false
+            },
+            optionsBar: {
+                plugins: [ChartDataLabels],
+                scales: {
+                    yAxes: [{
+                        ticks: {
+                            beginAtZero: true
+                        }
+                    }]
+                },
+                responsive: true,
+                legend: false,
+                maintainAspectRatio: false,
+            },
+            loaded: false,
+            chartdata: null,
+            agents:[],
+            agentsData:[],
+            openAgent: false,
+            query:'',
+            defaultAgent: {
+              "role":"AGENT",
+              "profile_pic":"/default.jpg",
+              "active":false,
+              "socket":null,
+              "isDev":false,
+              "_id":null,
+              "nombre":"",
+              "email":""
+            },
+            currentAgent:{
+              "role":"AGENT",
+              "profile_pic":"/default.jpg",
+              "active":false,
+              "socket":null,
+              "isDev":false,
+              "_id":null,
+              "nombre":"",
+              "email":""
+            },
+            newpassword:'',
+            newpasswordconfirm:''
         }
     },
     created() {
@@ -36,10 +188,89 @@ export default {
     },
     async mounted() {
         var that = this;
-        
+        that.loadAgents();
     },
     methods: {
-        
+        async loadAgents() {
+          var that = this;
+          try {
+            if(that.agentsData.length==0) {
+              var result = await getAgents();
+              that.agentsData = result.data;
+            }
+            if(that.query.length) {
+              that.agents = JSON.parse(JSON.stringify(that.agentsData)).filter((agent)=>{
+                return agent.nombre.toLowerCase().indexOf(that.query.toLowerCase())!=-1||agent.email.toLowerCase().indexOf(that.query.toLowerCase())!=-1||agent.role.toLowerCase().indexOf(that.query.toLowerCase())!=-1
+              })
+            } else {
+              that.agents = JSON.parse(JSON.stringify(that.agentsData));
+            }
+            store.commit('SET_IS_LOADING', false);
+          } catch(err) {
+            console.log(err);
+            store.commit('SET_IS_LOADING', false);
+          }
+        },
+        async deleteAgent(agent) {
+          var that = this;
+          var r = confirm("¿Está seguro que desea eliminar el Agente '"+agent.nombre+"'?");
+          if(r) {
+            try {
+              await deleteAgent(agent._id);
+              that.agentsData = [];
+              that.loadAgents();
+              store.commit('SET_IS_LOADING', false);
+            } catch(e) {
+              console.log(e);
+              that.agentsData = [];
+              that.loadAgents();
+              store.commit('SET_IS_LOADING', false);
+            }
+          }
+        },
+        editAgent(agent) {
+          var that = this;
+          that.currentAgent = agent;
+          that.newpassword = '';
+          that.newpasswordconfirm = '';
+          that.openAgent = true;
+        },
+        createAgent() {
+          var that = this;
+          that.currentAgent = JSON.parse(JSON.stringify(that.defaultAgent));
+          that.newpassword = '';
+          that.newpasswordconfirm = '';
+          that.openAgent = true;
+        },
+        saveAgent() {
+          var that = this;
+          if(that.newpassword.length>=4) {
+            that.currentAgent.password = that.newpassword;
+          }
+          var formToSend = JSON.parse(JSON.stringify(that.currentAgent));
+          if(that.currentAgent._id!=null) {
+            delete formToSend._id;
+            delete formToSend.active;
+            delete formToSend.created_at;
+            delete formToSend.isDev;
+            delete formToSend.lastSession;
+            delete formToSend.profile_pic;
+            delete formToSend.socket;
+            delete formToSend.token;
+            delete formToSend.updated_at;
+            delete formToSend.__v;
+          }
+          saveAgent(that.currentAgent._id,formToSend)
+            .then((result)=>{
+              that.agentsData = [];
+              that.loadAgents();
+              that.openAgent = false;
+              store.commit('SET_IS_LOADING', false);
+            }).catch((err)=>{
+              store.commit('SET_IS_LOADING', false);
+              console.log(err);
+            })
+        }
     },
     computed: {
         user: {
@@ -54,7 +285,13 @@ export default {
         }
     },
     watch: {
-      
+     query: {
+       immediate:true,
+       handler(newVal,oldVal) {
+         var that = this;
+         that.loadAgents();
+       }
+     }
     }
 }
 </script>
@@ -138,7 +375,6 @@ $lablab-green: #1EAF4B;
             align-items: center;
             flex: 0 0 auto;
             height: 120px;
-            z-index: 1;
 
             .toolbar {
                 padding: 10px;
@@ -193,7 +429,6 @@ $lablab-green: #1EAF4B;
             overflow-x:hidden;
             overflow-y:auto;
             background-color:white;
-            z-index: 0;
 
             /*
             @media (max-width: 1000px) {
@@ -282,6 +517,22 @@ $lablab-green: #1EAF4B;
                     color: white;
                     background-color: $amaranth-red;
                     border-color: $amaranth-red;
+                  }
+                }
+
+                label
+                {
+                  display: flex;
+
+                  span
+                  {
+                    margin-right: 10px;
+                  }
+
+                  select
+                  {
+                    margin-left: 10px;
+                    min-width: 198px;
                   }
                 }
                 
@@ -507,6 +758,7 @@ button:focus {
   padding:10px;
   transition: 500ms all ease-in-out;
   box-shadow: 0px 0px 35px 0px rgba(0,0,0,0.3);
+  z-index: 2;
 
   .top
   {
@@ -562,8 +814,8 @@ button:focus {
 
 .conversations-modal
 {
-  width: 90vw;
-  height: 90vh;
+  width: 50vw;
+  height: auto;
 
   .top
   {
@@ -652,57 +904,30 @@ button:focus {
         }
       }
     }
+
+    .danger-zone
+    {
+      border: 1px solid $amaranth-red;
+      margin-bottom:20px;
+      padding: 20px;
+    }
   }
 }
-</style>
 
-<style lang="scss">
-$lablab-red: #d90429ff;
-  /* DATE TIME SELECTOR */
-  .vdatetime-overlay
-  {
-    z-index: 999;
-  }
+.horizontal-scroll
+{
+  flex:1 1 100%;
+  overflow-x: auto;
 
-  .vdatetime-popup
-  {
-    position: absolute;
-    z-index: 1000;
-  }
+  table {
+    min-width: 1000px;
 
-  .vdatetime-popup__header { 
-    background: $lablab-red !important;
-  }
-
-  .vdatetime-calendar__month__day--selected > span > span, .vdatetime-calendar__month__day--selected:hover > span > span {
-    color: #fff;
-    background: $lablab-red !important;
-  }
-
-  label
-  {
-    display: flex;
-    flex-direction: column;
-    z-index: 0;
-
-    span
-    {
-      margin-right: 10px;
-      z-index: 0;
-    }
-
-    select
-    {
-      margin-left: 10px;
-      min-width: 198px;
-    }
-
-    input
-    {
-          border: none;
-          font-size: 12pt;
-          padding-top: 0px;
-          z-index: 0;
+    thead th { 
+      background-color: white;
+      position: sticky; 
+      top: 0; 
     }
   }
+}
+
 </style>
