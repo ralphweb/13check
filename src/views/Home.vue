@@ -168,10 +168,16 @@ $breakpoint-tablet: 735px;
             flex-direction: column;
           }
           @media only screen and (hover: none) and (pointer: coarse) and (orientation:landscape) {
-            flex-direction: row;
+            display: grid;
+            grid-template-columns: 17% 1fr;
+            grid-template-rows: minmax(min-content, max-content);
+            grid-template-areas: "head player";
+            padding: 0px;
+            overflow-y: auto;
           }
 
           &-header {
+            grid-area: head;
             flex: 1 1 100%;
             min-height: 30px;
             max-height: 20%;
@@ -189,6 +195,7 @@ $breakpoint-tablet: 735px;
             }
           }
           &-player {
+            grid-area:player;
             flex: 0 0 auto;
             display: grid;
             @media only screen and (hover: none) and (pointer: coarse) and (orientation:portrait) {
