@@ -124,7 +124,7 @@ $breakpoint-tablet: 735px;
     padding: 0px;
     overflow-y: auto;
 
-    @media (max-width: $breakpoint-tablet) and (orientation:portrait) {
+    @media only screen and (hover: none) and (pointer: coarse) and (orientation:portrait) {
       grid-template-columns: 1fr;
       grid-template-rows: minmax(min-content, max-content) minmax(min-content, max-content) 1fr;
       grid-template-areas: "col1" 
@@ -132,7 +132,7 @@ $breakpoint-tablet: 735px;
       margin-bottom: 60px;
     }
 
-    @media (max-width: $breakpoint-tablet) and (orientation:landscape) {
+    @media only screen and (hover: none) and (pointer: coarse) and (orientation:landscape) {
       grid-template-columns: 50% 50%;
       grid-template-rows: minmax(min-content, max-content);
       grid-template-areas: "col1"
@@ -164,10 +164,10 @@ $breakpoint-tablet: 735px;
           display: flex;
           flex-direction: column;
 
-          @media (max-width: $breakpoint-tablet) and (orientation:portrait) {
+          @media only screen and (hover: none) and (pointer: coarse) and (orientation:portrait) {
             flex-direction: column;
           }
-          @media (max-width: $breakpoint-tablet) and (orientation:landscape) {
+          @media only screen and (hover: none) and (pointer: coarse) and (orientation:landscape) {
             flex-direction: row;
           }
 
@@ -176,30 +176,26 @@ $breakpoint-tablet: 735px;
             min-height: 30px;
             max-height: 20%;
 
-            @media (max-width: $breakpoint-tablet) {
-              @media screen and (orientation:portrait) {
-                min-height: 30px;
-                height: 30px;
-              }
-              @media screen and (orientation:landscape) {
-                min-height: 30px;
-                max-height: unset;
-                height: 100%;
-                flex: 0 0 18%;
-                overflow: hidden;
-              }
+            @media only screen and (hover: none) and (pointer: coarse) and (orientation:portrait) {
+              min-height: 30px;
+              height: 30px;
+            }
+            @media only screen and (hover: none) and (pointer: coarse) and (orientation:landscape) {
+              min-height: 30px;
+              max-height: unset;
+              height: 100%;
+              flex: 0 0 18%;
+              overflow: hidden;
             }
           }
           &-player {
             flex: 0 0 auto;
             display: grid;
-            @media (max-width: $breakpoint-tablet) {
-              @media screen and (orientation:portrait) {
+            @media only screen and (hover: none) and (pointer: coarse) and (orientation:portrait) {
                 flex: 0 0 auto;
               }
-              @media screen and (orientation:landscape) {
-                flex: 1 1 100%;
-              }
+            @media only screen and (hover: none) and (pointer: coarse) and (orientation:landscape) {
+              flex: 1 1 100%;
             }
           }
           &-player > * {
@@ -219,7 +215,7 @@ $breakpoint-tablet: 735px;
         grid-area: middle;
         min-height: 80px;
 
-        @media (max-width: $breakpoint-tablet) and (orientation:portrait) {
+        @media only screen and (hover: none) and (pointer: coarse) and (orientation:portrait) {
           position: fixed;
           bottom:0vh;
           width:100vw;
@@ -227,7 +223,7 @@ $breakpoint-tablet: 735px;
           min-height: 60px;
         }
 
-        @media (max-width: $breakpoint-tablet) and (orientation:landscape) {
+        @media only screen and (hover: none) and (pointer: coarse) and (orientation:landscape) {
           position: fixed;
           bottom:-60px;
           width:100vw;
