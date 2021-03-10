@@ -118,11 +118,14 @@ $breakpoint-tablet: 735px;
 
 .app {
     display: grid;
+    width:100vw;
+    height: 100vh;
     grid-template-columns: 35% 30% 35%;
     grid-template-rows: minmax(min-content, max-content);
     grid-template-areas: "col1 middle col2";
     padding: 0px;
     overflow-y: auto;
+    overflow-x: hidden;
 
     @media only screen and (hover: none) and (pointer: coarse) and (orientation:portrait) {
       grid-template-columns: 1fr;
