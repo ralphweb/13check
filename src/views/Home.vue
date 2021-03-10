@@ -124,12 +124,20 @@ $breakpoint-tablet: 735px;
     padding: 0px;
     overflow-y: auto;
 
-    @media (max-width: $breakpoint-tablet) {
+    @media (max-width: $breakpoint-tablet) and (orientation:portrait) {
       grid-template-columns: 1fr;
       grid-template-rows: minmax(min-content, max-content) minmax(min-content, max-content) 1fr;
       grid-template-areas: "col1" 
                         "col2";
-      padding-bottom: 80px;
+      margin-bottom: 60px;
+    }
+
+    @media (max-width: $breakpoint-tablet) and (orientation:landscape) {
+      grid-template-columns: 50% 50%;
+      grid-template-rows: minmax(min-content, max-content);
+      grid-template-areas: "col1"
+                          "col2";
+      margin-bottom: 0px;
     }
 
     .col
@@ -156,19 +164,43 @@ $breakpoint-tablet: 735px;
           display: flex;
           flex-direction: column;
 
+          @media (max-width: $breakpoint-tablet) and (orientation:portrait) {
+            flex-direction: column;
+          }
+          @media (max-width: $breakpoint-tablet) and (orientation:landscape) {
+            flex-direction: row;
+          }
+
           &-header {
             flex: 1 1 100%;
-            min-height: 60px;
+            min-height: 30px;
             max-height: 20%;
 
-            @media (min-width: $breakpoint-tablet) {
-              min-height: 30px;
-              height: 30px;
+            @media (max-width: $breakpoint-tablet) {
+              @media screen and (orientation:portrait) {
+                min-height: 30px;
+                height: 30px;
+              }
+              @media screen and (orientation:landscape) {
+                min-height: 30px;
+                max-height: unset;
+                height: 100%;
+                flex: 0 0 18%;
+                overflow: hidden;
+              }
             }
           }
           &-player {
             flex: 0 0 auto;
             display: grid;
+            @media (max-width: $breakpoint-tablet) {
+              @media screen and (orientation:portrait) {
+                flex: 0 0 auto;
+              }
+              @media screen and (orientation:landscape) {
+                flex: 1 1 100%;
+              }
+            }
           }
           &-player > * {
             grid-area: 1/1;
@@ -187,11 +219,20 @@ $breakpoint-tablet: 735px;
         grid-area: middle;
         min-height: 80px;
 
-        @media (max-width: $breakpoint-tablet) {
+        @media (max-width: $breakpoint-tablet) and (orientation:portrait) {
           position: fixed;
           bottom:0vh;
           width:100vw;
-          height: 80px;
+          height: 60px;
+          min-height: 60px;
+        }
+
+        @media (max-width: $breakpoint-tablet) and (orientation:landscape) {
+          position: fixed;
+          bottom:-60px;
+          width:100vw;
+          height: 60px;
+          min-height: 60px;
         }
       }
     }
