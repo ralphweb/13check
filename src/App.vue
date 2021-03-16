@@ -37,6 +37,11 @@ body
   display: grid;
   grid-template-rows: minmax(min-content, max-content) 1fr;
   height: 100vh;
+  overflow: hidden;
+  width:100vw;
+  position: fixed;
+  top:0;
+  lefT:0;
 
   #nav {
     padding: 10px 20px 10px 10px;
