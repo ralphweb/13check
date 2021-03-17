@@ -1,12 +1,10 @@
 <template>
 <div v-bind:class="{'container-fluid app transition fadeInDown':true}">
     <div class="col fadeIn first signals">
-      <signal msg="Señal Uno" header="left"/>
-      <signal msg="Señal Dos" header="left"/>
+      <signal :msg="signal.name" :signal="signal" header="left" v-for="(signal,i) in signalsLeft" v-bind:key="i"/>
     </div>
     <div class="col fadeIn first signals">
-      <signal msg="Señal Tres" header="right"/>
-      <signal msg="Señal Cuatro" header="right"/>
+      <signal :msg="signal.name" :signal="signal" header="left" v-for="(signal,j) in signalsRight" v-bind:key="j"/>
     </div>    
     <div class="col middle bg-danger fadeIn second">
       Middle
@@ -20,6 +18,7 @@ import moment from 'moment';
 import Loader from '@/components/Loader.vue';
 import signal from '@/components/Signal.vue';
 import {
+    getSignals
 } from '@/helpers/API.js';
 import IOdometer from 'vue-odometer';
 import 'odometer/themes/odometer-theme-default.css';
@@ -33,7 +32,8 @@ export default {
     },
     data() {
         return {
-            loaded: false
+            loaded: false,
+            signals: []
         }
     },
     created() {
@@ -44,7 +44,12 @@ export default {
     },
     async mounted() {
         var that = this;
-        
+        getSignals()
+            .then((result)=>{
+                that.signals = result.data;
+            }).catch((err)=>{
+                console.log(err);
+            })
     },
     methods: {
         
@@ -58,6 +63,22 @@ export default {
                 } else {
                     return null;
                 }
+            }
+        },
+        signalsLeft: {
+            get() {
+                var that = this;
+                return that.signals.filter((signal,i)=>{
+                    return i<2;
+                });
+            }
+        },
+        signalsRight: {
+            get() {
+                var that = this;
+                return that.signals.filter((signal,i)=>{
+                    return i>=2&&i<4;
+                });
             }
         }
     },
@@ -83,6 +104,7 @@ $lablab-green: #1EAF4B;
 $breakpoint-tablet: 735px;
 
 .app {
+    grid-area: app;
     display: grid;
     width:100vw;
     grid-template-columns: 37% 26% 37%;
@@ -98,7 +120,8 @@ $breakpoint-tablet: 735px;
       grid-template-rows: minmax(min-content, max-content) minmax(min-content, max-content) 1fr;
       grid-template-areas: "col1" 
                         "col2";
-      padding-bottom: 160px;
+      margin-bottom: 0px;
+      height: 100vh;
     }
 
     @media only screen and (hover: none) and (pointer: coarse) and (orientation:portrait) {
@@ -106,7 +129,7 @@ $breakpoint-tablet: 735px;
       grid-template-rows: minmax(min-content, max-content);
       grid-template-areas: "col1"
                           "col2";
-      margin-bottom: 0px;
+      margin-bottom: 60px;
     }
 
     .col

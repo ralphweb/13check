@@ -24,13 +24,6 @@ const routes = [
     component: function () {
       return import('../views/Login.vue')
     }
-  },
-  {
-    path: '/agentes',
-    name: 'Agentes',
-    component: function () {
-      return import('../views/Agents.vue')
-    }
   }
 ]
 
@@ -44,7 +37,7 @@ router.beforeEach((to, from, next) => {
   if (!Vue.prototype.$session.exists()&&to.path!='/login') {
     router.push({name:'Login'})
   }
-
+  
   if(Vue.prototype.$session.exists()&&to.path=='/login') {
     router.push({name:'Home'})
   }

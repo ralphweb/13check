@@ -36,12 +36,21 @@ body
   color: #2c3e50;
   display: grid;
   grid-template-rows: minmax(min-content, max-content) 1fr;
+  grid-template-areas: "navigation" 
+                      "app";
   height: 100vh;
   overflow: hidden;
   width:100vw;
   position: fixed;
   top:0;
   lefT:0;
+
+  @media only screen and (hover: none) and (pointer: coarse) and (orientation:landscape) {
+    grid-template-columns: 1fr;
+    grid-template-rows: 1fr;
+    grid-template-areas: "app";
+    margin-bottom: 60px;
+  }
 
   #nav {
     padding: 10px 20px 10px 10px;
@@ -50,6 +59,7 @@ body
     align-items: center;
     justify-content: space-between;
     z-index: 10;
+    grid-area: navigation;
 
     a {
       font-weight: bold;
