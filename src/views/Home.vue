@@ -1,13 +1,14 @@
 <template>
-<div v-bind:class="{'container-fluid app transition fadeInDown':true}">
+<div v-bind:class="{'container-fluid app transition fadeInDown':true}" v-hammer:swipe.up="onSwipeUp" v-hammer:swipe.down="onSwipeDown">
     <div class="col fadeIn first signals">
-      <signal :msg="signal.name" :signal="signal" header="left" v-for="(signal,i) in signalsLeft" v-bind:key="i"/>
+      <signal :msg="signal.name" :class="'signal'+signal.idRating" :signal="signal" header="left" v-for="(signal,i) in signalsLeft" v-bind:key="i"/>
     </div>
     <div class="col fadeIn first signals">
       <signal :msg="signal.name" :signal="signal" header="left" v-for="(signal,j) in signalsRight" v-bind:key="j"/>
     </div>    
     <div class="col middle bg-danger fadeIn second">
-      Middle
+      <a href="#" v-scroll-to="'#video'+signal.idRating" v-for="(signal,k) in signalsLeft" v-bind:key="k">{{signal.name}}</a>
+      <a href="#" v-scroll-to="'#video'+signal.idRating" v-for="(signal,l) in signalsRight" v-bind:key="l">{{signal.name}}</a>
     </div>
 </div>
 </template>
@@ -33,7 +34,8 @@ export default {
     data() {
         return {
             loaded: false,
-            signals: []
+            signals: [],
+            current: 0
         }
     },
     created() {
@@ -52,7 +54,17 @@ export default {
             })
     },
     methods: {
-        
+        onSwipeUp() {
+            var that = this;
+            that.current = that.current-1>=0?that.current-1:that.signalsCurrent.length-1;
+            that.$scrollTo(".signal:nth-of-type("+that.current+")");
+            that.$scrollTo("#video"+that.signalsCurrent[that.current].idRating);
+        },
+        onSwipeDown() {
+            var that = this;
+            that.current = that.current+1<that.signalsCurrent.length?that.current+1:0;
+            that.$scrollTo("#video"+that.signalsCurrent[that.current].idRating);
+        }
     },
     computed: {
         user: {
@@ -79,6 +91,12 @@ export default {
                 return that.signals.filter((signal,i)=>{
                     return i>=2&&i<4;
                 });
+            }
+        },
+        signalsCurrent: {
+            get() {
+                var that = this;
+                return that.signalsLeft.concat(that.signalsRight);
             }
         }
     },
@@ -122,6 +140,7 @@ $breakpoint-tablet: 735px;
                         "col2";
       margin-bottom: 0px;
       height: 100vh;
+      overflow: hidden;
     }
 
     @media only screen and (hover: none) and (pointer: coarse) and (orientation:portrait) {
@@ -149,6 +168,10 @@ $breakpoint-tablet: 735px;
         &:last-of-type
         {
           grid-area: col2;
+        }
+
+        @media only screen and (hover: none) and (pointer: coarse) {
+            pointer-events: none;
         }
       }
 

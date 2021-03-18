@@ -3,8 +3,23 @@ import App from './App.vue'
 import router from './router'
 import store from './store'
 import VueSession from 'vue-session'
-import JsonExcel from "vue-json-excel";
-import VueBlobJsonCsv from 'vue-blob-json-csv';
+import { VueHammer } from 'vue2-hammer'
+
+const VueScrollTo = require('vue-scrollto');
+// You can also pass in the default options
+Vue.use(VueScrollTo, {
+     container: ".app",
+     duration: 500,
+     easing: "ease",
+     offset: 0,
+     force: true,
+     cancelable: true,
+     onStart: false,
+     onDone: false,
+     onCancel: false,
+     x: false,
+     y: true
+ })
 
 const moment = require('moment')
 require('moment/locale/es')
@@ -14,8 +29,7 @@ Vue.use(require('vue-moment'), {
 })
 Vue.use(VueSession,{persist:true})
 
-Vue.component("downloadExcel", JsonExcel);
-Vue.use(VueBlobJsonCsv);
+Vue.use(VueHammer)
 
 Vue.config.productionTip = false
 
