@@ -222,4 +222,12 @@ body
     margin-bottom: 30px;
   }
 }
+
+.player
+{
+  &__controls
+  {
+    /*display: none !important;*/
+  }
+}
 </style>

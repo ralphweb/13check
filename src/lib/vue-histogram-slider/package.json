@@ -1,0 +1,86 @@
+{
+  "_from": "vue-histogram-slider",
+  "_id": "vue-histogram-slider@0.3.8",
+  "_inBundle": false,
+  "_integrity": "sha512-HKqdB4uZsVmfzH5S3bpLMHXDZIK3/Nmbgm/TtXui6PWEXjFBny2oqg1ZSnhX2HLAwsvzIrkfO+Qs0Xg8OHPHKw==",
+  "_location": "/vue-histogram-slider",
+  "_phantomChildren": {},
+  "_requested": {
+    "type": "tag",
+    "registry": true,
+    "raw": "vue-histogram-slider",
+    "name": "vue-histogram-slider",
+    "escapedName": "vue-histogram-slider",
+    "rawSpec": "",
+    "saveSpec": null,
+    "fetchSpec": "latest"
+  },
+  "_requiredBy": [
+    "#USER",
+    "/"
+  ],
+  "_resolved": "https://registry.npmjs.org/vue-histogram-slider/-/vue-histogram-slider-0.3.8.tgz",
+  "_shasum": "e179ea43e10f67fc7a5b2c266f1a29e2d5ff0282",
+  "_spec": "vue-histogram-slider",
+  "_where": "C:\\Users\\ralph\\Proyectos\\13check",
+  "bugs": {
+    "url": "https://github.com/oguzhaninan/vue-histogram-slider/issues"
+  },
+  "bundleDependencies": false,
+  "dependencies": {
+    "d3-array": "^2.3.2",
+    "d3-brush": "^1.1.3",
+    "d3-scale": "^3.1.0",
+    "d3-selection": "^1.4.0",
+    "d3-transition": "^1.2.0",
+    "jquery": "3.5",
+    "vue": "^2.6.10"
+  },
+  "deprecated": false,
+  "description": "Range slider with histogram for vue.js",
+  "devDependencies": {
+    "@vue/cli-plugin-babel": "^3.11.0",
+    "@vue/cli-plugin-eslint": "^3.11.0",
+    "@vue/cli-service": "^3.11.0",
+    "@vue/eslint-config-prettier": "^5.0.0",
+    "babel-eslint": "^10.0.1",
+    "eslint": "^5.16.0",
+    "eslint-plugin-prettier": "^3.1.0",
+    "eslint-plugin-vue": "^5.0.0",
+    "lint-staged": "^8.1.5",
+    "prettier": "^1.18.2",
+    "vue-template-compiler": "^2.6.10"
+  },
+  "gitHooks": {
+    "pre-commit": "lint-staged"
+  },
+  "homepage": "https://github.com/oguzhaninan/vue-histogram-slider#readme",
+  "keywords": [
+    "vue",
+    "vuejs",
+    "slider",
+    "range-slider",
+    "histogram",
+    "histogram-slider"
+  ],
+  "license": "GPL-3.0",
+  "lint-staged": {
+    "*.{js,vue}": [
+      "vue-cli-service lint",
+      "git add"
+    ]
+  },
+  "main": "dist/histogram-slider.umd.min.js",
+  "name": "vue-histogram-slider",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/oguzhaninan/vue-histogram-slider.git"
+  },
+  "scripts": {
+    "build": "vue-cli-service build --name histogram-slider --entry ./src/lib/HistogramSlider.vue --target lib",
+    "lint": "vue-cli-service lint",
+    "prepublishOnly": "yarn lint && yarn build",
+    "serve": "vue-cli-service serve"
+  },
+  "version": "0.3.8"
+}

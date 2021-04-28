@@ -8,7 +8,23 @@
     </div>    
     <div class="col middle bg-danger fadeIn second">
       <a href="#" v-scroll-to="'#video'+signal.idRating" v-for="(signal,k) in signalsLeft" v-bind:key="k">{{signal.name}}</a>
-      <a href="#" v-scroll-to="'#video'+signal.idRating" v-for="(signal,l) in signalsRight" v-bind:key="l">{{signal.name}}</a>
+      <a href="#" v-scroll-to="'#video'+signal.idRating" v-for="(signal,l) in signalsRight" v-bind:key="l+2">{{signal.name}}</a>
+      <HistogramSlider
+        style="margin: 200px auto"
+        :width="400"
+        :bar-height="100"
+        :data="data"
+        :prettify="prettify"
+        :drag-interval="true"
+        :force-edges="true"
+        :primaryColor="'#FFFFFF'"
+        :holderColor="'rgba(255,255,255,0.3)'"
+        :handleColor="'#00FF00'"
+        :min="minTime"
+        :max="maxTime"
+        :step="0.1"
+        @change="sliderChanged"
+    />
     </div>
 </div>
 </template>
@@ -32,10 +48,13 @@ export default {
         signal
     },
     data() {
+        var today = new Date(Date.now());
         return {
             loaded: false,
             signals: [],
-            current: 0
+            current: 0,
+            minTime: (new Date(today)).setHours(today.getHours()-2).valueOf(),
+            maxTime: today.valueOf()
         }
     },
     created() {
@@ -54,6 +73,12 @@ export default {
             })
     },
     methods: {
+        sliderChanged(values){
+            console.log(values);
+        },
+        prettify(ts) {
+            return moment(ts).format('HH:mm:ss:SSS')
+        },
         onSwipeUp() {
             var that = this;
             that.current = that.current-1>=0?that.current-1:that.signalsCurrent.length-1;
@@ -97,6 +122,12 @@ export default {
             get() {
                 var that = this;
                 return that.signalsLeft.concat(that.signalsRight);
+            }
+        },
+        data: {
+            get() {
+                var that = this;
+                return [(new Date(that.minTime)).setMinutes((new Date(that.minTime)).getMinutes()+30),(new Date(that.minTime)).setMinutes((new Date(that.minTime)).getMinutes()+60),(new Date(that.minTime)).setMinutes((new Date(that.minTime)).getMinutes()+90),(new Date(that.minTime)).setMinutes((new Date(that.minTime)).getMinutes()+90),(new Date(that.minTime)).setMinutes((new Date(that.minTime)).getMinutes()+90)]
             }
         }
     },
@@ -168,10 +199,6 @@ $breakpoint-tablet: 735px;
         &:last-of-type
         {
           grid-area: col2;
-        }
-
-        @media only screen and (hover: none) and (pointer: coarse) {
-            pointer-events: none;
         }
       }
 

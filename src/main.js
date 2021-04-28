@@ -4,6 +4,8 @@ import router from './router'
 import store from './store'
 import VueSession from 'vue-session'
 import { VueHammer } from 'vue2-hammer'
+import HistogramSlider from '@/lib/vue-histogram-slider';
+import 'vue-histogram-slider/dist/histogram-slider.css';
 
 const VueScrollTo = require('vue-scrollto');
 // You can also pass in the default options
@@ -30,6 +32,8 @@ Vue.use(require('vue-moment'), {
 Vue.use(VueSession,{persist:true})
 
 Vue.use(VueHammer)
+
+Vue.component(HistogramSlider.name, HistogramSlider);
 
 Vue.config.productionTip = false
 

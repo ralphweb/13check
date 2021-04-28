@@ -16,49 +16,53 @@
     <div class="signal-player">
       <svg viewBox="0 0 16 9"></svg>
       <div> 
-        <video :id="'video'+signal.idRating"></video>     
+        <!--video :id="'video'+signal.idRating"></video-->     
+        <vplayer :id="'video'+signal.idRating" :playerOptions="aOption" @onpause="pause" />
       </div>
     </div>
   </div>
 </template>
 
 <script>
-import flvjs from 'flv.js';
-window.flvjs = flvjs;
+import { vplayer } from 'vue-hls-player'
 
 export default {
   name: 'signal',
   data() {
     return {
-      flvPlayer: null
+      flvPlayer: null,
+      aOption:{
+        type: "application/x-mpegURL",
+        src: 'http://192.168.100.29:8000/hls_1080p/stream/index.m3u8',
+        preload: true, 
+        autoplay: true,
+        isLoop: false,
+        controls: 'progress,current,durration,volume',
+        crossOrigin: false
+      }
     }
+  },
+  components: {
+    vplayer 
   },
   props: {
     msg: String,
     header: String,
-    signal: Object,
-    time: Number
+    signal: Object
   },
   mounted() {
     var that = this;
-    if (flvjs.isSupported()) {
-        var videoElement = document.getElementById('video'+that.signal.idRating);
-        that.flvPlayer = flvjs.createPlayer({
-            type: 'flv',
-            url: 'http://13check.ingenieriac13.cl/stream/'+that.signal.ipServer
-        });
-        that.flvPlayer.attachMediaElement(videoElement);
-        that.flvPlayer.load();
-        setTimeout(()=>{
-          that.flvPlayer.play();
-        },500);
+  },
+  methods:{
+    pause(e){
+        console.log(e)
     }
   }
 }
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
-<style scoped lang="scss">
+<style scoped lang="scss" scoped>
 .signal
 {
   display: flex;
@@ -163,7 +167,6 @@ export default {
       }
     }
   }
-
   &-player {
     grid-area:player;
     flex: 0 0 auto;
@@ -174,8 +177,6 @@ export default {
         flex: 0 0 auto;
         height: 100vh;
       }
-
-
     @media only screen and (hover: none) and (pointer: coarse) and (orientation:portrait) {
       flex: 1 1 100%;
     }
