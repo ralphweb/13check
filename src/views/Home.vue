@@ -6,7 +6,7 @@
     <div class="col fadeIn first signals">
       <signal :msg="signal.name" :signal="signal" header="left" v-for="(signal,j) in signalsRight" v-bind:key="j"/>
     </div>    
-    <div class="col middle bg-danger fadeIn second">
+    <div class="col middle fadeIn second">
       <a href="#" v-scroll-to="'#video'+signal.idRating" v-for="(signal,k) in signalsLeft" v-bind:key="k">{{signal.name}}</a>
       <a href="#" v-scroll-to="'#video'+signal.idRating" v-for="(signal,l) in signalsRight" v-bind:key="l+2">{{signal.name}}</a>
       <HistogramSlider

@@ -15256,6 +15256,7 @@ var jQuery = __webpack_require__("1157");
           num = this.coords.big_num;
 
       for (i = 0; i < num; i++) {
+        this.$cache.grid.find('.js-grid-text-' + i).text("poo");
         $label = this.$cache.grid.find('.js-grid-text-' + i);
         this.$cache.grid_labels.push($label);
       }

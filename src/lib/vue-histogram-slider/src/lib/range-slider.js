@@ -2386,6 +2386,7 @@ var jQuery = require('jquery')
         num = this.coords.big_num
 
       for (i = 0; i < num; i++) {
+        this.$cache.grid.find('.js-grid-text-' + i).text("poo");
         $label = this.$cache.grid.find('.js-grid-text-' + i)
         this.$cache.grid_labels.push($label)
       }
