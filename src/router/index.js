@@ -5,7 +5,7 @@ import { logout } from '@/helpers/API.js';
 
 Vue.use(VueRouter)
 
-const routes = [
+var routes = [
   {
     path: '/',
     name: 'Home',
@@ -24,6 +24,48 @@ const routes = [
     component: function () {
       return import('../views/Login.vue')
     }
+  },
+  {
+    path: '/vistaunica',
+    name: 'Vista Única',
+    component: function () {
+      return import('../views/single.vue')
+    }
+  },
+  {
+    path: '/comparador',
+    name: 'Comparador',
+    component: function () {
+      return import('../views/compare.vue')
+    }
+  },
+  {
+    path: '/todas',
+    name: 'Todas',
+    component: function () {
+      return import('../views/all.vue')
+    }
+  },
+  {
+    path: '/admin/signals',
+    name: 'Señales',
+    component: function () {
+      return import('../views/admin/signals.vue')
+    }
+  },
+  {
+    path: '/admin/users',
+    name: 'Usuarios',
+    component: function () {
+      return import('../views/admin/users.vue')
+    }
+  },
+  {
+    path: '/admin/roles',
+    name: 'Roles',
+    component: function () {
+      return import('../views/admin/roles.vue')
+    }
   }
 ]
 
@@ -32,14 +74,14 @@ const router = new VueRouter({
   base: process.env.BASE_URL,
   routes
 })
-
+  
 router.beforeEach((to, from, next) => {
   if (!Vue.prototype.$session.exists()&&to.path!='/login') {
     router.push({name:'Login'})
   }
   
   if(Vue.prototype.$session.exists()&&to.path=='/login') {
-    router.push({name:'Home'})
+    router.push({name:'Comparador'})
   }
 
   if(Vue.prototype.$session.exists()&&to.path=='/logout') {

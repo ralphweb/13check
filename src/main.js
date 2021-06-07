@@ -6,6 +6,17 @@ import VueSession from 'vue-session'
 import { VueHammer } from 'vue2-hammer'
 import HistogramSlider from '@/lib/vue-histogram-slider';
 import 'vue-histogram-slider/dist/histogram-slider.css';
+import { BootstrapVue, IconsPlugin } from 'bootstrap-vue';
+import ToggleButton from 'vue-js-toggle-button'
+ 
+Vue.use(ToggleButton)
+
+// Import Bootstrap an BootstrapVue CSS files (order is important)
+import 'bootstrap/dist/css/bootstrap.css'
+import 'bootstrap-vue/dist/bootstrap-vue.css'
+
+// Make BootstrapVue available throughout your project
+Vue.use(BootstrapVue)
 
 const VueScrollTo = require('vue-scrollto');
 // You can also pass in the default options

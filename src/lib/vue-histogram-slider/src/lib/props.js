@@ -3,6 +3,9 @@ export default {
     type: Array,
     required: true
   },
+  value: {
+    type: Number
+  },
   min: {
     type: Number
   },

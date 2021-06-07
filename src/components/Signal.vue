@@ -105,7 +105,7 @@ export default {
   &-header {
     grid-area: head;
     flex: 1 1 100%;
-    min-height: 60px;
+    min-height: 80px;
     max-height: 20%;
     display:grid;
     grid-template-rows: 1fr;

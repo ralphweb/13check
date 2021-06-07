@@ -11,7 +11,8 @@
 // http://ionden.com/a/plugins/licence-en.html
 // =====================================================================================================================
 
-var jQuery = require('jquery')
+var jQuery = require('jquery');
+var moment = require('moment');
 
 ;(function(factory) {
   if ((typeof jQuery === 'undefined' || !jQuery) && typeof define === 'function' && define.amd) {
@@ -1603,7 +1604,7 @@ var jQuery = require('jquery')
           text_single = this.decorate(p_values[this.result.from])
           this.$cache.single.html(text_single)
         } else {
-          from_pretty = this._prettify(this.result.from)
+          from_pretty = moment(this._prettify(this.result.from)).format("HH:mm:ss.SSS")
 
           text_single = this.decorate(from_pretty, this.result.from)
           this.$cache.single.html(text_single)
@@ -1644,17 +1645,17 @@ var jQuery = require('jquery')
           to_pretty = this._prettify(this.result.to)
 
           if (this.options.decorate_both) {
-            text_single = this.decorate(from_pretty, this.result.from)+"FROM"
+            text_single = moment(this.decorate(from_pretty, this.result.from)).format("HH:mm:ss.SSS")
             text_single += this.options.values_separator
-            text_single += this.decorate(to_pretty, this.result.to)+"TO"
+            text_single += moment(this.decorate(to_pretty, this.result.to)).format("HH:mm:ss.SSS")
           } else {
             text_single = this.decorate(
               from_pretty + this.options.values_separator + to_pretty,
               this.result.to
             )+"SINGLE"
           }
-          text_from = this.decorate(from_pretty, this.result.from)+"TF"
-          text_to = this.decorate(to_pretty, this.result.to)+"TT"
+          text_from = moment(this.decorate(from_pretty, this.result.from)).format("HH:mm:ss.SSS")
+          text_to = moment(this.decorate(to_pretty, this.result.to)).format("HH:mm:ss.SSS")
 
           this.$cache.single.html(text_single)
           this.$cache.from.html(text_from)
@@ -2386,7 +2387,9 @@ var jQuery = require('jquery')
         num = this.coords.big_num
 
       for (i = 0; i < num; i++) {
-        this.$cache.grid.find('.js-grid-text-' + i).text("poo");
+        var gridLabelText = this.$cache.grid.find('.js-grid-text-' + i).text();
+        var gridLabelDate = moment(gridLabelText).format("HH:mm");
+        this.$cache.grid.find('.js-grid-text-' + i).text(gridLabelDate);
         $label = this.$cache.grid.find('.js-grid-text-' + i)
         this.$cache.grid_labels.push($label)
       }

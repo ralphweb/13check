@@ -25,8 +25,56 @@ const getSignals = (email) => {
   return api.get("/signal",{});
 };
 
+/* VIEWS */
+const getViews = () => {
+  return api.get("/view",{});
+};
+
+/* ROLES */
+const getRoles = () => {
+  return api.get("/role",{});
+};
+
+const createRole = (role) => {
+  return api.post("/role",role);
+};
+
+const updateRole = (id,role) => {
+  return api.put("/role/"+id,role);
+};
+
+const deleteRole = (id) => {
+  return api.delete("/role/"+id,{});
+};
+
+/* USERS */
+const getUsers = () => {
+  return api.get("/user",{});
+};
+
+const createUser = (user) => {
+  return api.post("/user",user);
+};
+
+const updateUser = (id,user) => {
+  return api.put("/user/"+id,user);
+};
+
+const deleteUser = (id) => {
+  return api.delete("/user/"+id,{});
+};
+
 export {
   login,
   logout,
-  getSignals
+  getSignals,
+  getViews,
+  getRoles,
+  createRole,
+  updateRole,
+  deleteRole,
+  getUsers,
+  createUser,
+  updateUser,
+  deleteUser
 };

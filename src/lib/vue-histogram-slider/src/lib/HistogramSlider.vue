@@ -8,7 +8,7 @@
       </defs>
     </svg>
     <div class="slider-wrapper">
-      <input type="text" :id="histogramId" :name="histogramId" value="" />
+      <input type="text" :id="histogramId" :name="histogramId" :value="value" />
     </div>
   </div>
 </template>
@@ -166,7 +166,7 @@ export default {
         skin: 'round',
         min: min,
         max: max,
-        from: min,
+        from: this.value,
         to: max,
         type: this.type,
         grid: this.grid,

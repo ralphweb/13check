@@ -1,17 +1,43 @@
 <template>
-  <div id="app">
+  <div id="app" v-bind:class="{'admin':true}">
     <div id="nav">
       <a class="navbar-brand" href="/">
           <img src="/img/icons/13.png" class="legalRecLogo"><h1>Check</h1>
       </a>
       <div class="navbar-container" v-if="$session.exists()">
         <router-link to="/">Inicio</router-link>
-        <router-link to="/logout">Cerrar Sesión</router-link>
+        <router-link :to="view.path" v-for="(view,v) in views" v-bind:key="v" v-bind:class="{'admin':view.isAdmin}"><small v-if="view.isAdmin">Admin</small>{{view.name}}</router-link>
+        <router-link to="/logout" class="session">Cerrar Sesión</router-link>
       </div>
     </div>
     <router-view/>
   </div>
 </template>
+
+<script>
+import {
+    getViews
+} from '@/helpers/API.js';
+
+export default {
+  name: 'App',
+  data() {
+    return {
+      views: [],
+      firstAdmin: false
+    }
+  },
+  created() {
+    var that = this;
+    getViews()
+      .then((result)=>{
+        that.views = result.data;
+      }).catch((e)=>{
+        console.log(e);
+      })
+  }
+}
+</script>
 
 <style lang="scss">
 $imperial-red: #F86423;
@@ -45,6 +71,11 @@ body
   top:0;
   lefT:0;
 
+  &.admin
+  {
+    overflow: auto;
+  }
+
   @media only screen and (hover: none) and (pointer: coarse) and (orientation:landscape) {
     grid-template-columns: 1fr;
     grid-template-rows: 1fr;
@@ -53,7 +84,7 @@ body
   }
 
   #nav {
-    padding: 10px 20px 10px 10px;
+    padding: 0px 20px 0px 10px;
     background-color: #1c1c1c;
     display: flex;
     align-items: center;
@@ -65,10 +96,41 @@ body
       font-weight: bold;
       color: white;
       text-decoration: none;
-      margin-left: 20px;
+      padding: 15px 15px;
+      display: flex;
+      flex-direction: column;
+
+      &:hover
+      {
+        background-color: #555;
+      }
 
       &.router-link-exact-active {
         color: #F86423;
+      }
+    }
+
+    .navbar-container
+    {
+      display: flex;
+      align-items: center;
+
+      small
+      {
+        font-size: 10pt;
+        margin-bottom: -5px;
+      }
+
+      & > .admin,
+      & > .session
+      {
+        border-left: 1px solid white;
+      }
+
+      & > .admin ~ .admin,
+      & > .session ~ .session
+      {
+        border-left: none;
       }
     }
 
@@ -229,5 +291,14 @@ body
   {
     /*display: none !important;*/
   }
+}
+
+/* ADMIN */
+.admin
+{
+    h1
+    {
+        color: white;
+    }
 }
 </style>
