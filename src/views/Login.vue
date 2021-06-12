@@ -61,7 +61,7 @@ export default {
           this.$session.start();
           this.$session.set('jwt', result.data.token);
           this.$session.set('user', result.data.user);
-          this.$router.push('/comparador');
+          window.location = '/comparador';
           store.commit('SET_IS_LOADING', false);
         }).catch((err)=>{
           console.log(err);

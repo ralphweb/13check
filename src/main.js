@@ -8,7 +8,17 @@ import HistogramSlider from '@/lib/vue-histogram-slider';
 import 'vue-histogram-slider/dist/histogram-slider.css';
 import { BootstrapVue, IconsPlugin } from 'bootstrap-vue';
 import ToggleButton from 'vue-js-toggle-button'
+import es from 'vee-validate/dist/locale/es';
+import VeeValidate, { Validator } from 'vee-validate';
+
+Vue.use(VeeValidate, {
+  inject: true,
+  fieldsBagName: "veeFields",
+  errorBagName: "veeErrors"
+});
  
+Validator.localize('es', es);
+
 Vue.use(ToggleButton)
 
 // Import Bootstrap an BootstrapVue CSS files (order is important)

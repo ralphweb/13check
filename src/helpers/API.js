@@ -20,11 +20,6 @@ const logout = (email) => {
   return api.put("/auth/logout/",{email:email});
 };
 
-/* LOGOUT */
-const getSignals = (email) => {
-  return api.get("/signal",{});
-};
-
 /* VIEWS */
 const getViews = () => {
   return api.get("/view",{});
@@ -33,6 +28,10 @@ const getViews = () => {
 /* ROLES */
 const getRoles = () => {
   return api.get("/role",{});
+};
+
+const getRole = (id) => {
+  return api.get("/role/"+id,{});
 };
 
 const createRole = (role) => {
@@ -64,17 +63,43 @@ const deleteUser = (id) => {
   return api.delete("/user/"+id,{});
 };
 
+/* SIGNALS */
+const getSignals = () => {
+  return api.get("/signal",{});
+};
+
+const getAllSignals = () => {
+  return api.get("/signal/all",{});
+};
+
+const createSignal = (user) => {
+  return api.post("/signal",user);
+};
+
+const updateSignal = (id,user) => {
+  return api.put("/signal/"+id,user);
+};
+
+const deleteSignal = (id) => {
+  return api.delete("/signal/"+id,{});
+};
+
 export {
   login,
   logout,
-  getSignals,
   getViews,
   getRoles,
+  getRole,
   createRole,
   updateRole,
   deleteRole,
   getUsers,
   createUser,
   updateUser,
-  deleteUser
+  deleteUser,
+  getSignals,
+  getAllSignals,
+  createSignal,
+  updateSignal,
+  deleteSignal
 };

@@ -66,6 +66,13 @@ var routes = [
     component: function () {
       return import('../views/admin/roles.vue')
     }
+  },
+  {
+    path: '/admin/form',
+    name: 'Formulario',
+    component: function () {
+      return import('../views/admin/form.vue')
+    }
   }
 ]
 

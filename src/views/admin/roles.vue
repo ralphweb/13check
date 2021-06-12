@@ -9,8 +9,8 @@
             <template #cell(actions)="row">
                 <b-button v-bind:class="{'disabled':!hasAtLeastOneView}" v-if="row.index==items.length-1" @click="newRole()">Crear</b-button>
                 <div class="d-flex justify-content-around" v-if="row.index!=items.length-1&&row.item.hasOwnProperty('_id')">
-                    <b-button class="success" @click="createRole(row.index,false)">Guardar</b-button>
-                    <b-button class="success" @click="deleteRole(row.index)">Eliminar</b-button>
+                    <b-button class="btn-success" @click="createRole(row.index,false)">Guardar</b-button>
+                    <b-button class="btn-danger" @click="deleteRole(row.index)">Eliminar</b-button>
                 </div>
             </template>
             <template #cell(vistaunica)="data">
@@ -40,6 +40,11 @@
             </template>
             <template #cell(roles)="data">
                 <b-form-checkbox v-model="selectedViews.roles[data.index]" @change="toggleSelectedViews('roles',data.index)">
+                    
+                </b-form-checkbox>
+            </template>
+            <template #cell(form)="data">
+                <b-form-checkbox v-model="selectedViews.form[data.index]" @change="toggleSelectedViews('form',data.index)">
                     
                 </b-form-checkbox>
             </template>
