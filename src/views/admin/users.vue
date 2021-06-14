@@ -215,10 +215,10 @@
             <template #modal-footer>
                     <!-- Emulate built in modal footer ok and cancel button actions -->
                     <div class="d-flex justify-content-between w-100">
-                        <b-button size="md" variant="danger" @click="deleteUser(editingIndex)">
+                        <b-button size="md" variant="danger" @click="deleteUser(editingIndex)"  v-if="tempUser&&currentId">
                             Eliminar usuario
                         </b-button>
-                        <b-button size="md" variant="warning" @click="closeModal()">
+                        <b-button class="ml-auto" size="md" variant="warning" @click="closeModal()">
                             Cancelar
                         </b-button>
                         

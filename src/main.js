@@ -24,6 +24,8 @@ Vue.use(ToggleButton)
 // Import Bootstrap an BootstrapVue CSS files (order is important)
 import 'bootstrap/dist/css/bootstrap.css'
 import 'bootstrap-vue/dist/bootstrap-vue.css'
+// Import the styles too, typically in App.vue or main.js
+import 'vue-swatches/dist/vue-swatches.css'
 
 // Make BootstrapVue available throughout your project
 Vue.use(BootstrapVue)
