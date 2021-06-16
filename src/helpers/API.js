@@ -72,12 +72,13 @@ const getAllSignals = () => {
   return api.get("/signal/all",{});
 };
 
-const createSignal = (user) => {
-  return api.post("/signal",user);
+const createSignal = (signal) => {
+  return api.post("/signal",signal);
 };
 
-const updateSignal = (id,user) => {
-  return api.put("/signal/"+id,user);
+const updateSignal = (id,signal) => {
+  delete signal.logo;
+  return api.put("/signal/"+id,signal);
 };
 
 const deleteSignal = (id) => {

@@ -40,6 +40,9 @@
                 </b-button>
             </template>
 
+            <button ref="startloadingfile" class="d-none" @click="startLoadingFile">loadingfile</button>
+            <vue-dropzone ref="myVueDropzone" id="dropzone" class="col-12 col-md-10 offset-md-1 d-flex flex-column text-center align-items-center justify-content-center" :options="dropzoneOptions" @vdropzone-success="vsuccess" @vdropzone-complete="vcomplete" @vdropzone-error="verror" @vdropzone-file-added="vfileadded"></vue-dropzone>
+
             <b-form v-if="editingIndex!=null" @submit.stop.prevent="onSubmit">
 
                 <b-form-group id="example-input-group-1" label="Nombre(s):" label-for="example-input-1">
@@ -48,7 +51,7 @@
                     name="example-input-1"
                     placeholder="Ingrese nombre..."
                     v-model="items[editingIndex].name"
-                    v-validate="{ required: true, min: 2, alpha_spaces: true }"
+                    v-validate="{ required: true, min: 2, regex: /^[A-Za-z0-9_@./#&+-]*$/ }"
                     :state="validateState('example-input-1')"
                     aria-describedby="input-1-live-feedback"
                     data-vv-as="Nombre(s)"
@@ -63,7 +66,7 @@
                     name="example-input-2"
                     placeholder="Ingrese ID rating..."
                     v-model="items[editingIndex].idRating"
-                    v-validate="{ required: true, min: 2, alpha_num: true }"
+                    v-validate="{ required: true, min: 2, alpha_dash: true }"
                     :state="validateState('example-input-2')"
                     aria-describedby="input-2-live-feedback"
                     data-vv-as="ID Rating"
@@ -168,10 +171,16 @@ import {
     deleteSignal
 } from '@/helpers/API.js';
 import VSwatches from 'vue-swatches'
+import vue2Dropzone from 'vue2-dropzone';
+import 'vue2-dropzone/dist/vue2Dropzone.min.css';
+import config from '../../app.config';
 
 export default {
     name:"Señales",
-    components: { VSwatches },
+    components: { 
+        VSwatches,
+        vueDropzone: vue2Dropzone 
+    },
     data() {
         return {
             items: [],
@@ -190,14 +199,51 @@ export default {
             editingIndex: null,
             tempSignal: null,
             currentId:null,
-            currentField:null
+            currentField:null,
+            dropzoneOptions: {
+                autoProcessQueue: false,
+                url: 'http://localhost:4100/api/signal/upload/',
+                withCredentials: false,
+                method: "POST",
+                headers: {
+                    "Cache-Control": "",
+                },
+                thumbnailWidth: 150,
+                maxFilesize: 1024,
+                paramName: 'file',
+                acceptedFiles: '.png,.jpg,.bmp,.gif',
+                timeout: 999999999999,
+                maxFiles:1,
+                init: function() {
+                        this.on("maxfilesexceeded", function(file) {
+                            this.removeAllFiles();
+                            this.addFile(file);
+                        });
+                },
+                dictDefaultMessage: "<p>Haz click o arrastra una nueva imagen</p>",
+                previewTemplate: `<div class="dz-preview dz-file-preview" style="pointer-events:none">
+                                    <img data-dz-thumbnail />
+                                    <p>Haz click o arrastra una nueva imagen</p>
+                                    <div class="dz-progress"><span class="dz-upload" data-dz-uploadprogress></span></div>
+                                    <div class="dz-success-mark"><span>✔</span></div>
+                                    <div class="dz-error-mark"><span>✘</span></div>
+                                    <div class="dz-error-message"><span data-dz-errormessage></span></div>
+                                </div>`
+            }
         }
     },
     mounted() {
         var that = this;
         getAllSignals()
             .then((result)=>{
-                that.items = result.data.map((signal)=>{
+                that.items = that.processSignals(result.data);
+            }).catch((e)=>{
+                console.log(e);
+            })
+    },
+    methods: {
+        processSignals(data) {
+            return data.map((signal)=>{
                     let newSignal = signal;
                     if(signal.logo.indexOf("\\")!=-1) {
                         let logoBits = signal.logo.split("\\");
@@ -205,11 +251,38 @@ export default {
                     }
                     return newSignal;
                 });
-            }).catch((e)=>{
-                console.log(e);
-            })
-    },
-    methods: {
+        },
+        startLoadingFile() {
+            var that = this;
+            let newURL = config.apiUrl+'signal/upload/'+that.currentId;
+            that.$refs.myVueDropzone.options.url = newURL
+            that.$refs.myVueDropzone.dropzone.options.url = newURL
+            that.dropzoneOptions.url = newURL
+            console.log(newURL);
+            that.$refs.myVueDropzone.processQueue();
+        },
+        async vsuccess(file, response) {
+            var that = this;
+            console.log("vsuccess");
+            console.log(response);   
+            that.tempSignal = null;
+            let result = await getAllSignals();
+            that.items = that.processSignals(result.data);         
+            that.$bvModal.hide("editing");
+            that.editingIndex = null;
+        },
+        vcomplete(file) {
+            var that = this;
+            console.log("COMPLETE")
+        },
+        vfileadded(file) {
+            var that = this;
+            console.log("that.$refs.myVueDropzone.dropzone.files.length",that.$refs.myVueDropzone.dropzone.files.length);
+        },
+        verror(file,response) {
+            var that = this;
+            console.log(response);
+        },
         validateState(ref) {
             if (
                 this.veeFields[ref] &&
@@ -229,21 +302,34 @@ export default {
                 that.items[that.editingIndex].color = 'rgba('+that.items[that.editingIndex].colorBorde+',0.2)';
 
                 if(that.editingIndex!=null&&that.currentId!=null) {
+                    //EDIT                    
                     let response = await updateSignal(that.items[that.editingIndex]._id,that.items[that.editingIndex])
-                    console.log(response);
-                    that.tempSignal = null;
+                    that.currentId = that.items[that.editingIndex]._id;
+                    if(that.$refs.myVueDropzone.dropzone.files.length!=0&&!that.$refs.myVueDropzone.dropzone.files[0].manuallyAdded) {
+                        that.startLoadingFile();
+                    } else {
+                        console.log(response);
+                        that.tempSignal = null;
+                        let result = await getAllSignals();
+                        that.items = that.processSignals(result.data);
+                        that.$bvModal.hide("editing");
+                        that.editingIndex = null;
+                    }
                 }
 
                 if(that.currentId==null) {
                     let response = await createSignal(that.items[that.editingIndex]);
                     that.currentId = response.data._id;
-                    that.tempSignal = null;
-                    let result = await getAllSignals();
-                    that.items = result.data;
-                }
-
-                that.$bvModal.hide("editing");
-                that.editingIndex = null;
+                    if(that.$refs.myVueDropzone.dropzone.files.length!=0&&!that.$refs.myVueDropzone.dropzone.files[0].manuallyAdded) {
+                        that.startLoadingFile();
+                    } else {
+                        that.tempSignal = null;
+                        let result = await getAllSignals();
+                        that.items = that.processSignals(result.data);
+                        that.$bvModal.hide("editing");
+                        that.editingIndex = null;
+                    }
+                }                
             }).catch((e)=>{
                 console.log(e);
                 that.$bvModal.hide("editing");
@@ -270,6 +356,11 @@ export default {
             });
             that.tempSignal = JSON.parse(JSON.stringify(that.items[that.editingIndex]));
             that.$bvModal.show("editing");
+            setTimeout(()=>{
+                var file = { size: 123, name: "Logo", type: "image/png" };
+                var url = that.items[that.editingIndex].logo;
+                that.$refs.myVueDropzone.manuallyAddFile(file, url);
+            },500)
         },
         newSignal() {
             let that = this;
@@ -279,6 +370,12 @@ export default {
                 switch(key) {
                     case 'active':
                         that.tempSignal[key] = true;
+                        break;
+                    case 'deleted':
+                    case 'crops':
+                    case 'logo':
+                    case 'order':
+                        delete that.tempSignal[key];
                         break;
                     case 'allowsGmail':
                         that.tempSignal[key] = false;
