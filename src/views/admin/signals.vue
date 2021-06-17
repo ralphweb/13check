@@ -51,7 +51,7 @@
                     name="example-input-1"
                     placeholder="Ingrese nombre..."
                     v-model="items[editingIndex].name"
-                    v-validate="{ required: true, min: 2, regex: /^[A-Za-z0-9_@./#&+-]*$/ }"
+                    v-validate="{ required: true, min: 2, regex: /^[ A-Za-z0-9_@./#&+-]*$/ }"
                     :state="validateState('example-input-1')"
                     aria-describedby="input-1-live-feedback"
                     data-vv-as="Nombre(s)"
@@ -318,8 +318,12 @@ export default {
                 }
 
                 if(that.currentId==null) {
+                    //NEW
                     let response = await createSignal(that.items[that.editingIndex]);
+                    console.log("response after new");
+                    console.log(response);
                     that.currentId = response.data._id;
+                    console.log(that.$refs.myVueDropzone.dropzone.files);
                     if(that.$refs.myVueDropzone.dropzone.files.length!=0&&!that.$refs.myVueDropzone.dropzone.files[0].manuallyAdded) {
                         that.startLoadingFile();
                     } else {

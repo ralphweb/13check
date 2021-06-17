@@ -2,6 +2,9 @@
     <div class="admin p-4">
         <h1>Roles</h1>
         <b-table striped dark hover :items="items" :fields="fields" :tbody-tr-class="rowClass">
+            <template #head()="data">
+                <span class="d-flex flex-row justify-content-center align-items-center" v-html="data.label"></span>
+            </template>
             <template #cell(name)="row">
                 <b-form-input v-model="row.item.name" v-if="row.index==items.length-1"/>
                 <span v-if="row.index!=items.length-1">{{row.item.name}}</span>
@@ -91,6 +94,7 @@ export default {
                                 "key" : view.slug,
                                 "label" : view.name
                             }
+                            if(view.isAdmin) field.label = "<small>Admin</small>"+field.label;
                             if(view.isAdmin) field['variant'] = 'darker'
                             that.fields.push(field);
                         })
