@@ -33,6 +33,13 @@ var routes = [
     }
   },
   {
+    path: '/catalogo',
+    name: 'Catálogo',
+    component: function () {
+      return import('../views/catalog.vue')
+    }
+  },
+  {
     path: '/comparador',
     name: 'Comparador',
     component: function () {

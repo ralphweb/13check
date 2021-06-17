@@ -17,7 +17,13 @@
                 <div class="signal-logo mx-auto" :style="'background-image:url('+row.item.logo+');'"></div>
             </template>
             <template #cell(colorBorde)="row">
-                <div class="signal-logo mx-auto" :style="'background-color:'+row.item.colorBorde+';'"></div>
+                <div class="signal-color mx-auto" :style="'background-color:'+row.item.colorBorde+';'"></div>
+            </template>
+            <template #cell(order)="row">
+                <select v-model="row.item.order" @change="saveToggle(row.item._id,'order',row.item.order)">
+                    <option v-for="(order,r) in orderOptions" v-bind:key="r" :value="order">{{order}}</option>
+                </select>
+                <b-spinner variant="success" class="canal13 ml-2 mt-2 position-absolute top-0 end-0" label="Spinning" v-if="loading&&currentId==row.item._id&&currentField=='role'"></b-spinner>
             </template>
             <template #cell(active)="row">
                 <toggle-button v-model="row.item.active"
@@ -184,8 +190,8 @@ export default {
     data() {
         return {
             items: [],
-            sortBy: 'active',
-            sortDesc: true,
+            sortBy: 'order',
+            sortDesc: false,
             fields: [
                 { key:'actions',label:'Acciones'},
                 { key:'logo',label:'Logo',sortable:false},
@@ -193,6 +199,7 @@ export default {
                 { key:'name',label:'Nombre',sortable:true},
                 { key:'idRating',label:'ID Rating',sortable:true},
                 { key:'ipServer',label:'IP',sortable:true},
+                { key:'order',label:'Orden',sortable:true},
                 { key:'active',label:'Activo',sortable:true},
             ],
             loading:false,
@@ -378,11 +385,13 @@ export default {
                     case 'deleted':
                     case 'crops':
                     case 'logo':
-                    case 'order':
                         delete that.tempSignal[key];
                         break;
                     case 'allowsGmail':
                         that.tempSignal[key] = false;
+                        break;
+                    case 'order':
+                        that.tempSignal[key] = that.items.length+1;
                         break;
                     default:
                         that.tempSignal[key] = null;
@@ -428,6 +437,15 @@ export default {
             if(callback) callback();
             else that.$bvModal.hide("editing");
         }
+    },
+    computed: {
+        orderOptions: {
+            get() {
+                return this.items.map((elm,index)=>{
+                    return index+1;
+                })
+            }
+        }
     }
 }
 </script>
@@ -449,6 +467,16 @@ export default {
     {
         width: 60px;
         height: 60px;
+        background-size: contain;
+        background-repeat: no-repeat;
+        background-position: center center;
+    }
+
+    &-color
+    {
+        width: 30px;
+        height: 30px;
+        border-radius: 60px;
         background-size: contain;
         background-repeat: no-repeat;
         background-position: center center;

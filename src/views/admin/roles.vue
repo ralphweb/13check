@@ -16,6 +16,21 @@
                     <b-button class="btn-danger" @click="deleteRole(row.index)">Eliminar</b-button>
                 </div>
             </template>
+            <template #cell(allowRating)="row">
+                <b-form-checkbox v-model="row.item.allowRating">
+                    
+                </b-form-checkbox>
+            </template>
+            <template #cell(allowCrop)="row">
+                <b-form-checkbox v-model="row.item.allowCrop">
+                    
+                </b-form-checkbox>
+            </template>
+            <template #cell(catalogo)="data">
+                <b-form-checkbox v-model="selectedViews.catalogo[data.index]" @change="toggleSelectedViews('catalogo',data.index)">
+                    
+                </b-form-checkbox>
+            </template>
             <template #cell(vistaunica)="data">
                 <b-form-checkbox v-model="selectedViews.vistaunica[data.index]" @change="toggleSelectedViews('vistaunica',data.index)">
                     
@@ -73,7 +88,11 @@ export default {
         return {
             selected:false,
             views:[],
-            fields: ['name'],
+            fields: [
+                { key:'name',label:'Nombre',sortable:true},
+                { key:'allowRating',label:'Rating',sortable:true,tdClass:'functions'},
+                { key:'allowCrop',label:'Recortes',sortable:true,tdClass:'functions'}
+            ],
             items: [],
             selectedViews: {},
             hasAtLeastOneView: false
@@ -84,7 +103,7 @@ export default {
         getRoles()
             .then((result)=>{
                 that.items = result.data;
-                that.items.push({name:'Nuevo Rol',status:'newRow'});
+                that.items.push({name:'Nuevo Rol',allowRating:false,allowCrop:false,status:'newRow'});
                 getViews()
                     .then((response)=>{
                         that.views = response.data;
@@ -92,10 +111,11 @@ export default {
                             that.selectedViews[view.slug] = new Array(that.items.length).fill(false);
                             let field = {
                                 "key" : view.slug,
-                                "label" : view.name
+                                "label" : view.name,
+                                "tdClass" : 'views'
                             }
                             if(view.isAdmin) field.label = "<small>Admin</small>"+field.label;
-                            if(view.isAdmin) field['variant'] = 'darker'
+                            if(view.isAdmin) field['tdClass'] = 'admins'
                             that.fields.push(field);
                         })
                         let lastField = {
@@ -222,6 +242,41 @@ tr.new-row
     {
         background-color: #131313 !important;
         vertical-align: middle;
+    }
+}
+
+tr 
+{
+    td
+    {
+        &.admins
+        {
+            background-color: #131313 !important;
+            width: 120px;
+        }
+        &.functions
+        {
+            background-color: #131313 !important;
+            width: 100px;
+        }
+        &.views
+        {
+            width: 120px;
+        }
+    }
+
+    &:nth-of-type(odd) td
+    {
+        &.admins
+        {
+            background-color: #131313 !important;
+            box-shadow: inset 0 0 0 9999px rgba(#557799,0.2) !important;
+        }
+        &.functions
+        {
+            background-color: #131313 !important;
+            box-shadow: inset 0 0 0 9999px rgba(#557799,0.2) !important;
+        }
     }
 }
 </style>

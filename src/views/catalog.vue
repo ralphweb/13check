@@ -43,7 +43,7 @@ import IOdometer from 'vue-odometer';
 import 'odometer/themes/odometer-theme-default.css';
 
 export default {
-    name: 'Vistaunica',
+    name: 'Catalogo',
     components: {
         Loader,
         IOdometer,

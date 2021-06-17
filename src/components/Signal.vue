@@ -2,7 +2,7 @@
   <div v-bind:class="['signal',header]">
     <div class="signal-header">
       <div class="signal-header-logo">
-          <div class="signal-header-logo-img" :style="'background-image:url(\'http://13check.ingenieriac13.cl:3000/'+signal.logo.replace(/\\/g, '/')+'\');'"></div>
+          <div class="signal-header-logo-img" :style="'background-image:url(\''+signal.logo.replace(/\\/g, '/')+'\');'"></div>
       </div>
       <div class="signal-header-rating">
           <h5>Rating</h5>
@@ -169,6 +169,7 @@ export default {
     flex: 0 0 auto;
     display: grid;
     color: white;
+    background-color: magenta;
 
     @media only screen and (hover: none) and (pointer: coarse) and (orientation:landscape) {
         flex: 0 0 auto;
