@@ -1,23 +1,23 @@
 <template>
-  <div v-bind:class="['signal',header]">
+  <div v-bind:class="['signal',header]" v-if="currentSignals[index]">
     <div class="signal-header">
-      <div class="signal-header-logo">
-          <div class="signal-header-logo-img" :style="'background-image:url(\''+signal.logo.replace(/\\/g, '/')+'\');'"></div>
+      <div class="signal-header-logo d-flex">
+          <div class="signal-header-logo-img d-flex align-items-center justify-content-end" :style="'background-image:url(\''+currentSignals[index].logo+'\');'" @click="toggleAvailable"> <i v-bind:class="{'fa fa-chevron-down text-light':true,'fa-rotate-180':showAvailable}" v-if="availableSignals.length"></i></div>
+          <div v-bind:class="{'signal-header-logo-available d-flex justify-content-start':true,'show':showAvailable}">
+            <div class="signal-header-logo-img d-flex align-items-center justify-content-end" :style="'background-image:url(\''+availableSignal.logo+'\');'" v-for="(availableSignal,av) in availableSignals" v-bind:key="av" @click="replaceSignal(av)"></div>
+          </div>
       </div>
-      <div class="signal-header-rating">
+      <div class="signal-header-rating" v-if="user.role.allowRating">
           <h5>Rating</h5>
-          <h2 :style="'color:'+signal.colorBorde">N/A</h2>
+          <h2 :style="'color:'+currentSignals[index].colorBorde">N/A</h2>
       </div>
-      <div class="signal-header-share">
+      <div class="signal-header-share" v-if="user.role.allowRating">
           <h5>Share</h5>
-          <h2 :style="'color:'+signal.colorBorde">N/A</h2>
+          <h2 :style="'color:'+currentSignals[index].colorBorde">N/A</h2>
       </div>
     </div>
     <div class="signal-player">
-      <svg viewBox="0 0 16 9"></svg>
-      <div> 
-        <video :id="'video'+signal.idRating"></video>     
-      </div>
+        <video :id="'video'+currentSignals[index].idRating"></video>     
     </div>
   </div>
 </template>
@@ -30,28 +30,77 @@ export default {
   name: 'signal',
   data() {
     return {
-      flvPlayer: null
+      flvPlayer: null,
+      currentId: null,
+      showAvailable: false
     }
   },
   props: {
-    msg: String,
     header: String,
-    signal: Object,
-    time: Number
+    index: Number
   },
   mounted() {
     var that = this;
-    if (flvjs.isSupported()) {
-        var videoElement = document.getElementById('video'+that.signal.idRating);
+    setTimeout(()=>{
+      that.currentId = that.currentSignals[that.index]._id;
+    },500);
+    if (flvjs.isSupported()&&that.currentSignals[that.index]) {
+        var videoElement = document.getElementById('video'+that.currentSignals[that.index].idRating);
         that.flvPlayer = flvjs.createPlayer({
             type: 'flv',
-            url: 'http://13check.ingenieriac13.cl/stream/'+that.signal.ipServer
+            url: 'http://13check.ingenieriac13.cl/stream/'+that.currentSignals[that.index].ipServer
         });
         that.flvPlayer.attachMediaElement(videoElement);
         that.flvPlayer.load();
         setTimeout(()=>{
           that.flvPlayer.play();
         },500);
+    }
+  },
+  computed: {
+    availableSignals: {
+        get() {
+            return this.$store.state.availableSignals;
+        },
+        set(value) {
+            this.$store.commit('SET_AVAILABLE_SIGNALS', value);
+        }
+    },
+    currentSignals: {
+        get() {
+            return this.$store.state.currentSignals;
+        },
+        set(value) {
+            this.$store.commit('SET_CURRENT_SIGNALS', value);
+        }
+    },
+    time: {
+        get() {
+            return this.$store.state.time;
+        }
+    },
+    user: {
+        get() {
+            return this.$store.state.user;
+        },
+        set(value) {
+            this.$store.commit('SET_USER', value);
+        }
+    },
+  },
+  methods: {
+    replaceSignal(av) {
+      var that = this;
+      let nextSignal = that.availableSignals[av];
+      let oldSignal = that.currentSignals[that.index];
+      that.currentSignals[that.index] = nextSignal;
+      that.currentId = nextSignal._id;
+      that.$parent.checkAvailable();
+      that.showAvailable = false;
+    },
+    toggleAvailable() {
+      var that = this;
+      that.showAvailable = !that.showAvailable;
     }
   }
 }
@@ -63,6 +112,7 @@ export default {
 {
   display: flex;
   flex-direction: column;
+  position: relative;
 
   @media only screen and (hover: none) and (pointer: coarse) and (orientation:landscape) {
     display: grid;
@@ -106,11 +156,12 @@ export default {
     grid-area: head;
     flex: 1 1 100%;
     min-height: 80px;
-    max-height: 20%;
+    max-height: 80px;
     display:grid;
     grid-template-rows: 1fr;
     grid-template-columns: 34% 33% 33%;
     background: #050505;
+    z-index: 9;
 
     @media only screen and (hover: none) and (pointer: coarse) {
       min-height: 30px;
@@ -131,6 +182,33 @@ export default {
         background-repeat: no-repeat;
         width: 100%;
         height: 100%;
+      }
+
+      &-available
+      {
+        position: absolute;
+        width: 100%;
+        height: 80px;
+        background-color: rgba(0,0,0,0.8);
+        overflow-x: auto;
+        flex-wrap: nowrap;
+        pointer-events: none;
+        opacity: 0;
+        top: 60px;
+        transition: all 500ms ease-in-out;
+        z-index: 8;
+
+        &.show
+        {
+          top: 80px;
+          opacity: 1;
+          pointer-events: all;
+        }
+
+        .signal-header-logo-img
+        {
+          min-width: 80px;
+        }
       }
     }
 
@@ -170,29 +248,7 @@ export default {
     display: grid;
     color: white;
     background-color: magenta;
-
-    @media only screen and (hover: none) and (pointer: coarse) and (orientation:landscape) {
-        flex: 0 0 auto;
-        height: 100vh;
-      }
-
-
-    @media only screen and (hover: none) and (pointer: coarse) and (orientation:portrait) {
-      flex: 1 1 100%;
-    }
-  }
-  &-player > * {
-    grid-area: 1/1;
-
-    @media only screen and (hover: none) and (pointer: coarse) and (orientation:landscape) {
-      height: 100vh;
-    }
-  }
-
-  &-player div {
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    aspect-ratio: 16 / 9;
 
     video
     {

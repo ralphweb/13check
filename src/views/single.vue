@@ -1,17 +1,11 @@
 <template>
 <div v-bind:class="{'container-fluid app transition fadeInDown':true}" v-hammer:swipe.up="onSwipeUp" v-hammer:swipe.down="onSwipeDown">
-    <div class="col fadeIn first signals">
-      <signal :msg="signal.name" :class="'signal'+signal.idRating" :signal="signal" header="left" v-for="(signal,i) in signalsLeft" v-bind:key="i"/>
+    <div class="col fadeIn single">
+      <signal :ref="'signal'" :index="0" v-bind:key="i" v-for="(signal,i) in [currentSignals[0]]" header="left"/>
     </div>
-    <div class="col fadeIn first signals">
-      <signal :msg="signal.name" :signal="signal" header="left" v-for="(signal,j) in signalsRight" v-bind:key="j"/>
-    </div>    
     <div class="col middle fadeIn second">
-      <a href="#" v-scroll-to="'#video'+signal.idRating" v-for="(signal,k) in signalsLeft" v-bind:key="k">{{signal.name}}</a>
-      <a href="#" v-scroll-to="'#video'+signal.idRating" v-for="(signal,l) in signalsRight" v-bind:key="l+2">{{signal.name}}</a>
       <HistogramSlider
         style="margin: 200px auto"
-        :width="750"
         :bar-height="100"
         :data="data"
         :type="'single'"
@@ -24,8 +18,9 @@
         :min="minTime"
         :max="maxTime"
         :step="0.1"
-        :value="currentTime"
+        :value="time"
         @change="sliderChanged"
+        v-if="user.role.allowRating"
     />
     </div>
 </div>
@@ -53,8 +48,8 @@ export default {
         var that = this;
         var today = new Date(Date.now());
         setInterval(()=>{
-            that.currentTime = new Date(Date.now()).valueOf();
-            that.maxTime = that.currentTime;
+            that.time = new Date(Date.now()).valueOf();
+            that.maxTime = that.time;
         },1000);
         return {
             loaded: false,
@@ -69,18 +64,45 @@ export default {
         if (!that.$session.exists()) {
             window.location = "/login";
         }
-        console.log(that.$parent.role);
     },
     async mounted() {
         var that = this;
         getSignals()
             .then((result)=>{
-                that.signals = result.data;
+                that.signals = that.processSignals(result.data);
+                that.currentSignals = [];
+                for(let i=0;i<4;i++) {
+                    that.currentSignals.push(that.signals[i]);
+                }
+                setTimeout(()=>{
+                    that.checkAvailable();
+                },500)
             }).catch((err)=>{
                 console.log(err);
             })
+        console.log(that.$refs);
     },
     methods: {
+        checkAvailable() {
+            let that = this;
+            let inUse = [];
+            that.$refs.signal.forEach((signal)=>{
+                inUse.push(signal.currentId);
+            })
+            that.availableSignals = that.signals.filter((signal)=>{
+                return !inUse.includes(signal._id)&&signal.ipServer!="";
+            })
+        },
+        processSignals(data) {
+            return data.map((signal)=>{
+                    let newSignal = signal;
+                    if(signal.logo.indexOf("\\")!=-1) {
+                        let logoBits = signal.logo.split("\\");
+                        newSignal.logo = logoBits.join("/");
+                    }
+                    return newSignal;
+                });
+        },
         sliderChanged(values){
             console.log(values);
         },
@@ -102,7 +124,7 @@ export default {
     computed: {
         user: {
             get() {
-                var that = this;
+                let that = this;
                 if (that.$session.exists() && that.$session.get('user') != undefined) {
                     return that.$session.get('user');
                 } else {
@@ -112,30 +134,70 @@ export default {
         },
         signalsLeft: {
             get() {
-                var that = this;
-                return that.signals.filter((signal,i)=>{
+                let that = this;
+                return that.currentSignals.filter((signal,i)=>{
                     return i<2;
                 });
             }
         },
         signalsRight: {
             get() {
-                var that = this;
-                return that.signals.filter((signal,i)=>{
+                let that = this;
+                return that.currentSignals.filter((signal,i)=>{
                     return i>=2&&i<4;
                 });
             }
         },
         signalsCurrent: {
             get() {
-                var that = this;
+                let that = this;
                 return that.signalsLeft.concat(that.signalsRight);
             }
         },
         data: {
             get() {
-                var that = this;
+                let that = this;
                 return [(new Date(that.minTime)).setMinutes((new Date(that.minTime)).getMinutes()+30),(new Date(that.minTime)).setMinutes((new Date(that.minTime)).getMinutes()+60),(new Date(that.minTime)).setMinutes((new Date(that.minTime)).getMinutes()+90),(new Date(that.minTime)).setMinutes((new Date(that.minTime)).getMinutes()+90),(new Date(that.minTime)).setMinutes((new Date(that.minTime)).getMinutes()+90)]
+            }
+        },
+        availableSignals: {
+            get() {
+                return this.$store.state.availableSignals;
+            },
+            set(value) {
+                this.$store.commit('SET_AVAILABLE_SIGNALS', value);
+            }
+        },
+        currentSignals: {
+            get() {
+                return this.$store.state.currentSignals;
+            },
+            set(value) {
+                this.$store.commit('SET_CURRENT_SIGNALS', value);
+            }
+        },
+        time: {
+            get() {
+                return this.$store.state.time;
+            },
+            set(value) {
+                this.$store.commit('SET_TIME', value);
+            }
+        },
+        user: {
+            get() {
+                return this.$store.state.user;
+            },
+            set(value) {
+                this.$store.commit('SET_USER', value);
+            }
+        },
+        views: {
+            get() {
+                return this.$store.state.views;
+            },
+            set(value) {
+                this.$store.commit('SET_VIEWS', value);
             }
         }
     },
@@ -146,27 +208,15 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-$space-cadet: #2b2d42ff;
-$manatee: #8d99aeff;
-$manatee-light: rgb(218, 213, 213);
-$alice-blue: #edf2f4ff;
-$alice-blue-mid: rgb(230, 230, 230);
-$imperial-red: #ef233cff;
-$amaranth-red: #d90429ff;
-$lablab-red: #d90429ff;
-$lablab-blue: #19AAF9;
-$lablab-purple: #AF56D0;
-$lablab-green: #1EAF4B;
-
 $breakpoint-tablet: 735px;
 
 .app {
     grid-area: app;
     display: grid;
+    grid-template-columns: 1fr minmax(150px, 25%);
+    grid-template-rows: 1fr;
+    grid-template-areas: "col1 middle";
     width:100vw;
-    grid-template-columns: auto 800px auto;
-    grid-template-rows: minmax(min-content, max-content);
-    grid-template-areas: "col1 middle col2";
     padding: 0px;
     overflow-y: auto;
     overflow-x: hidden;
@@ -195,25 +245,29 @@ $breakpoint-tablet: 735px;
       height: 100%;
       padding: 0px;
 
-      &.signals
+      &.single
       {
-        display: flex;
-        flex-direction: column;
-
-        &:first-of-type
-        {
+          width: auto;
+          height: 100%;
           grid-area: col1;
-        }
-        &:last-of-type
-        {
-          grid-area: col2;
-        }
+          display: grid;
+          grid-template-columns: 1fr;
+          grid-template-rows: 1fr;
+          align-content: stretch;
+          flex-basis: 90%;
+
+          .signal
+          {
+              height: 100%;
+          }
       }
 
       &.middle
       {
         grid-area: middle;
         min-height: 80px;
+        overflow-x: auto;
+        flex:1 1 auto;
 
         @media only screen and (hover: none) and (pointer: coarse) and (orientation:portrait) {
           position: fixed;
@@ -235,130 +289,6 @@ $breakpoint-tablet: 735px;
           transform: translate3d(0,0,0);
         }
       }
-    }
-}
-
-/* UTIL */
-.transition {
-    transition: all 500ms ease-in-out;
-}
-
-.disabled {
-    pointer-events: none;
-}
-
-textarea,
-textarea:active,
-select,
-select:active,
-input,
-input:active,
-button,
-button:active,
-button:focus {
-    outline: none !important;
-    box-shadow: none !important;
-    resize: none;
-}
-
-.btn {
-    transition: 500ms all ease-in-out;
-}
-
-.img {
-    background-size: cover;
-    background-position: center center;
-    background-repeat: no-repeat;
-
-    &.rounded {
-        width: 50px;
-        height: 50px;
-        border-radius: 70px !important;
-    }
-
-    &.big {
-        width: 200px;
-        height: 200px;
-        border-radius: 200px !important;
-    }
-}
-
-.pointer {
-    cursor: pointer;
-}
-
-.lablab {
-    &-bg {
-        &-light {
-            background: $alice-blue;
-        }
-
-        &-midlight {
-            background: $alice-blue-mid;
-        }
-
-        &-mid {
-            background: $manatee-light;
-        }
-
-        &-dark {
-            background: $manatee;
-        }
-
-        &-darker {
-            background: $space-cadet;
-        }
-
-        &-primary {
-            background: $amaranth-red;
-        }
-    }
-
-    &-primary {
-        color: $amaranth-red;
-    }
-
-}
-
-@-webkit-keyframes loader {
-    0% {
-        background-position: 0% 50%
-    }
-
-    50% {
-        background-position: 100% 50%
-    }
-
-    100% {
-        background-position: 0% 50%
-    }
-}
-
-@-moz-keyframes loader {
-    0% {
-        background-position: 0% 50%
-    }
-
-    50% {
-        background-position: 100% 50%
-    }
-
-    100% {
-        background-position: 0% 50%
-    }
-}
-
-@keyframes loader {
-    0% {
-        background-position: 0% 50%
-    }
-
-    50% {
-        background-position: 100% 50%
-    }
-
-    100% {
-        background-position: 0% 50%
     }
 }
 </style>

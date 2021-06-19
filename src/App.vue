@@ -23,26 +23,41 @@ export default {
   name: 'App',
   data() {
     return {
-      views: [],
-      firstAdmin: false,
-      role: null
     }
   },
   async created() {
     var that = this;
     if(that.$session.exists()) {
-      let user = that.$session.get('user');
-      let result = await getRole(user.role);
-      that.role = result.data[0];
+      that.user = that.$session.get('user');
+      let result = await getRole(that.user.role);
+      that.user.role = result.data[0];
       getViews()
         .then((result)=>{
           that.views = result.data.filter((view)=>{
-            return that.role.views.indexOf(view._id)!=-1;
+            return that.user.role.views.indexOf(view._id)!=-1;
           });
         }).catch((e)=>{
           console.log(e);
         })
     }
+  },
+  computed: {
+    user: {
+        get() {
+            return this.$store.state.user;
+        },
+        set(value) {
+            this.$store.commit('SET_USER', value);
+        }
+    },
+    views: {
+        get() {
+            return this.$store.state.views;
+        },
+        set(value) {
+            this.$store.commit('SET_VIEWS', value);
+        }
+    },
   }
 }
 </script>
@@ -323,6 +338,97 @@ body
     h1
     {
         color: white;
+    }
+}
+
+/* UTIL */
+.transition {
+    transition: all 500ms ease-in-out;
+}
+
+.disabled {
+    pointer-events: none;
+}
+
+textarea,
+textarea:active,
+select,
+select:active,
+input,
+input:active,
+button,
+button:active,
+button:focus {
+    outline: none !important;
+    box-shadow: none !important;
+    resize: none;
+}
+
+.btn {
+    transition: 500ms all ease-in-out;
+}
+
+.img {
+    background-size: cover;
+    background-position: center center;
+    background-repeat: no-repeat;
+
+    &.rounded {
+        width: 50px;
+        height: 50px;
+        border-radius: 70px !important;
+    }
+
+    &.big {
+        width: 200px;
+        height: 200px;
+        border-radius: 200px !important;
+    }
+}
+
+.pointer {
+    cursor: pointer;
+}
+
+@-webkit-keyframes loader {
+    0% {
+        background-position: 0% 50%
+    }
+
+    50% {
+        background-position: 100% 50%
+    }
+
+    100% {
+        background-position: 0% 50%
+    }
+}
+
+@-moz-keyframes loader {
+    0% {
+        background-position: 0% 50%
+    }
+
+    50% {
+        background-position: 100% 50%
+    }
+
+    100% {
+        background-position: 0% 50%
+    }
+}
+
+@keyframes loader {
+    0% {
+        background-position: 0% 50%
+    }
+
+    50% {
+        background-position: 100% 50%
+    }
+
+    100% {
+        background-position: 0% 50%
     }
 }
 </style>
