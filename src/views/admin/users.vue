@@ -382,7 +382,7 @@ export default {
         rowClass(item, type) {
             let that = this;
             if (!item || type !== 'row') return
-            //if (item.index == that.editingIndex) return 'editing'
+            if (item.index == that.editingIndex) return 'editing'
         },
         async closeModal(callback = null,type = 'cancel') {
             let that = this;
@@ -426,20 +426,11 @@ export default {
 </script>
 
 <style lang="scss">
-.canal13
-{
-    color: #F86423 !important;
-}
-
 .table > :not(caption) > * > * {
     vertical-align: middle;
     position: relative;
 }
 
-.vue-js-switch
-{
-    margin-bottom: 0px;
-}
 .pagination
 {
     .page-item
@@ -460,21 +451,6 @@ export default {
                 color: #F86423;
             }
         }
-    }
-}
-
-tr
-{ 
-    &.editing
-    { 
-        --bs-table-accent-bg: none !important;
-        background-color: #ffc107 !important;
-    }
-
-    td,
-    td:hover
-    {
-        background: transparent !important;
     }
 }
 

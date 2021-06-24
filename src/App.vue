@@ -431,4 +431,74 @@ button:focus {
         background-position: 0% 50%
     }
 }
+
+.vue-js-switch
+{
+    margin-bottom: 0px;
+}
+
+.canal13
+{
+    color: #F86423 !important;
+}
+
+.table 
+{
+    border-collapse: separate;
+
+    & > :not(caption) > * > * {
+        vertical-align: middle;
+        position: relative;
+        border-width: 0px;
+        border-collapse: collapse;
+    }
+
+    tbody tr td,
+    thead tr th,
+    thead {
+    border-left: 0px solid transparent;
+    border-right: 0px solid transparent;
+    }
+
+    .actions
+    {
+        max-width: 80px;
+        min-width: 60px;
+    }
+
+    .text
+    {
+        max-width: 120px !important;
+        min-width: 100px;
+    }
+
+
+    &-editing
+    {
+        background-color: black !important;
+
+        td
+        {
+            background-color: transparent !important;
+            box-shadow: unset !important;
+            border-top:1px solid #F86423;
+            border-bottom:1px solid #F86423;
+            z-index: 1;
+        }
+    }
+
+    thead
+    {
+        position: sticky;
+        top: 0px;
+        z-index: 20;
+        border-top:2px solid white;
+    }
+}
+
+thead, tbody, tfoot, tr, td, th {
+    border-color: inherit;
+    border-style: unset;
+    border-width: 0;
+}
 </style>

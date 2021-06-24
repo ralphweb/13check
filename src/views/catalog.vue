@@ -1,32 +1,14 @@
 <template>
-<div v-bind:class="{'container-fluid app transition fadeInDown':true}" v-hammer:swipe.up="onSwipeUp" v-hammer:swipe.down="onSwipeDown">
-    <div class="col fadeIn first signals">
-      <signal :ref="'signal'" :index="i" v-bind:key="i" v-for="(signal,i) in signalsLeft" header="left"/>
-    </div>
-    <div class="col fadeIn first signals">
-      <signal :ref="'signal'" :index="i+2" v-bind:key="i" v-for="(signal,i) in signalsRight" header="left"/>
-    </div>    
-    <div class="col middle fadeIn second">
-      <HistogramSlider
-        style="margin: 200px auto"
-        :width="750"
-        :bar-height="100"
-        :data="data"
-        :type="'single'"
-        :prettify="prettify"
-        :drag-interval="true"
-        :force-edges="true"
-        :primaryColor="'#FFFFFF'"
-        :holderColor="'rgba(255,255,255,0.3)'"
-        :handleColor="'#00FF00'"
-        :min="minTime"
-        :max="maxTime"
-        :step="0.1"
-        :value="time"
-        @change="sliderChanged"
-        v-if="user.role.allowRating"
-    />
-    </div>
+<div v-bind:class="{'container-fluid app transition fadeInDown':true}" ref="container" v-hammer:swipe.up="onSwipeUp" v-hammer:swipe.down="onSwipeDown">
+    <multipane layout="vertical" class="w-100">
+        <div :style="{ width: '70vw', minWidth: '30vw', maxWidth: '70vw' }" class="fadeIn catalog">
+            <signal :ref="'signal'" :index="0" v-bind:key="i" v-for="(signal,i) in [currentSignals[0]]" header="left"/>
+        </div>
+        <multipane-resizer></multipane-resizer>
+        <div :style="{ flexGrow: 1 }">
+            Formulario
+        </div>
+    </multipane>
 </div>
 </template>
 
@@ -35,18 +17,18 @@ import store from "@/store";
 import moment from 'moment';
 import Loader from '@/components/Loader.vue';
 import signal from '@/components/Signal.vue';
+import { Multipane, MultipaneResizer } from 'vue-multipane';
 import {
     getSignals
 } from '@/helpers/API.js';
-import IOdometer from 'vue-odometer';
-import 'odometer/themes/odometer-theme-default.css';
 
 export default {
-    name: 'Catalogo',
+    name: 'Vistaunica',
     components: {
         Loader,
-        IOdometer,
-        signal
+        signal,
+        Multipane,
+        MultipaneResizer
     },
     data() {
         var that = this;
@@ -60,7 +42,8 @@ export default {
             signals: [],
             minTime: (new Date(today)).setHours(today.getHours()-2).valueOf(),
             maxTime: today.valueOf(),
-            currentTime: today.valueOf()
+            currentTime: today.valueOf(),
+            isHandlerDragging: false
         }
     },
     created() {
@@ -216,58 +199,24 @@ $breakpoint-tablet: 735px;
 
 .app {
     grid-area: app;
-    display: grid;
+    display: flex;
     width:100vw;
-    grid-template-columns: auto 800px auto;
-    grid-template-rows: minmax(min-content, max-content);
-    grid-template-areas: "col1 middle col2";
     padding: 0px;
     overflow-y: auto;
     overflow-x: hidden;
     -webkit-overflow-scrolling:touch;
-
-    @media only screen and (hover: none) and (pointer: coarse) and (orientation:landscape) {
-      grid-template-columns: 1fr;
-      grid-template-rows: minmax(min-content, max-content) minmax(min-content, max-content) 1fr;
-      grid-template-areas: "col1" 
-                        "col2";
-      margin-bottom: 0px;
-      height: 100vh;
-      overflow: hidden;
-    }
-
-    @media only screen and (hover: none) and (pointer: coarse) and (orientation:portrait) {
-      grid-template-columns: 1fr;
-      grid-template-rows: minmax(min-content, max-content);
-      grid-template-areas: "col1"
-                          "col2";
-      margin-bottom: 60px;
-    }
 
     .col
     {
       height: 100%;
       padding: 0px;
 
-      &.signals
-      {
-        display: flex;
-        flex-direction: column;
-
-        &:first-of-type
-        {
-          grid-area: col1;
-        }
-        &:last-of-type
-        {
-          grid-area: col2;
-        }
-      }
-
       &.middle
       {
         grid-area: middle;
         min-height: 80px;
+        overflow-x: auto;
+        flex:1 1 auto;
 
         @media only screen and (hover: none) and (pointer: coarse) and (orientation:portrait) {
           position: fixed;
@@ -289,6 +238,25 @@ $breakpoint-tablet: 735px;
           transform: translate3d(0,0,0);
         }
       }
+    }
+}
+
+.catalog
+{
+    height: 100%;
+    grid-area: col1;
+    display: grid;
+    grid-template-columns: 1fr;
+    grid-template-rows: 1fr;
+    align-content: stretch;
+    box-sizing: border-box;
+    background-color: black;
+    border-right: 2px solid #AAA;
+    box-shadow: 1px 0px 15px 0px rgba(0,0,0,0.7);
+
+    .signal
+    {
+        height: 100%;
     }
 }
 </style>

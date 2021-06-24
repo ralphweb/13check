@@ -85,6 +85,109 @@ const deleteSignal = (id) => {
   return api.delete("/signal/"+id,{});
 };
 
+/* FORMULARIO */
+/* COUNTRY */
+const getallCountry = () => {
+  return api.get("/country/all",{});
+};
+
+const createCountry = (country) => {
+  return api.post("/country",country);
+};
+
+const updateCountry = (id,country) => {
+  return api.put("/country/"+id,country);
+};
+
+const deleteCountry = (id) => {
+  return api.delete("/country/"+id,{});
+};
+
+/* PERSON */
+const getallPerson = () => {
+  return api.get("/person/all",{});
+};
+
+const createPerson = (person) => {
+  return api.post("/person",person);
+};
+
+const updatePerson = (id,person) => {
+  return api.put("/person/"+id,person);
+};
+
+const deletePerson = (id) => {
+  return api.delete("/person/"+id,{});
+};
+
+/* SHOW */
+const getallShow = () => {
+  return api.get("/show/all",{});
+};
+
+const createShow = (show) => {
+  return api.post("/show",show);
+};
+
+const updateShow = (id,show) => {
+  return api.put("/show/"+id,show);
+};
+
+const deleteShow = (id) => {
+  return api.delete("/show/"+id,{});
+};
+
+/* TOPIC */
+const getallTopic = () => {
+  return api.get("/topic/all",{});
+};
+
+const createTopic = (topic) => {
+  return api.post("/topic",topic);
+};
+
+const updateTopic = (id,topic) => {
+  return api.put("/topic/"+id,topic);
+};
+
+const deleteTopic = (id) => {
+  return api.delete("/topic/"+id,{});
+};
+
+/* AGE */
+const getallAge = () => {
+  return api.get("/age/all",{});
+};
+
+const createAge = (age) => {
+  return api.post("/age",age);
+};
+
+const updateAge = (id,age) => {
+  return api.put("/age/"+id,age);
+};
+
+const deleteAge = (id) => {
+  return api.delete("/age/"+id,{});
+};
+
+/* CATEGORY */
+const getallCategory = () => {
+  return api.get("/category/all",{});
+};
+
+const createCategory = (category) => {
+  return api.post("/category",category);
+};
+
+const updateCategory = (id,category) => {
+  return api.put("/category/"+id,category);
+};
+
+const deleteCategory = (id) => {
+  return api.delete("/category/"+id,{});
+};
+
 export {
   login,
   logout,
@@ -102,5 +205,29 @@ export {
   getAllSignals,
   createSignal,
   updateSignal,
-  deleteSignal
+  deleteSignal,
+  getallCountry,
+  createCountry,
+  updateCountry,
+  deleteCountry,
+  getallPerson,
+  createPerson,
+  updatePerson,
+  deletePerson,
+  getallShow,
+  createShow,
+  updateShow,
+  deleteShow,
+  getallTopic,
+  createTopic,
+  updateTopic,
+  deleteTopic,
+  getallAge,
+  createAge,
+  updateAge,
+  deleteAge,
+  getallCategory,
+  createCategory,
+  updateCategory,
+  deleteCategory,
 };

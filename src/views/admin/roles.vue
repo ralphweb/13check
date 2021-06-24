@@ -1,6 +1,6 @@
 <template>
     <div class="admin p-4">
-        <h1>Roles</h1>
+        <h2 class="text-light">Roles</h2>
         <b-table striped dark hover :items="items" :fields="fields" :tbody-tr-class="rowClass">
             <template #head()="data">
                 <span class="d-flex flex-row justify-content-center align-items-center" v-html="data.label"></span>
@@ -8,6 +8,7 @@
             <template #cell(name)="row">
                 <b-form-input v-model="row.item.name" v-if="row.index==items.length-1"/>
                 <span v-if="row.index!=items.length-1">{{row.item.name}}</span>
+                <b-spinner variant="success" class="canal13 ml-2 mt-2 position-absolute top-0 end-0" label="Spinning" v-if="loading&&currentId==row.item._id"></b-spinner>
             </template>
             <template #cell(actions)="row">
                 <b-button v-bind:class="{'disabled':!hasAtLeastOneView}" v-if="row.index==items.length-1" @click="newRole()">Crear</b-button>
@@ -23,6 +24,11 @@
             </template>
             <template #cell(allowCrop)="row">
                 <b-form-checkbox v-model="row.item.allowCrop">
+                    
+                </b-form-checkbox>
+            </template>
+            <template #cell(allowShare)="row">
+                <b-form-checkbox v-model="row.item.allowShare">
                     
                 </b-form-checkbox>
             </template>
@@ -89,13 +95,16 @@ export default {
             selected:false,
             views:[],
             fields: [
-                { key:'name',label:'Nombre',sortable:true},
-                { key:'allowRating',label:'Rating',sortable:true,tdClass:'functions'},
-                { key:'allowCrop',label:'Recortes',sortable:true,tdClass:'functions'}
+                { key:'name',label:'Nombre',sortable:false},
+                { key:'allowRating',label:'Rating',sortable:false,tdClass:'functions'},
+                { key:'allowCrop',label:'Recortes',sortable:false,tdClass:'functions'},
+                { key:'allowShare',label:'Compartir',sortable:false,tdClass:'functions'}
             ],
             items: [],
             selectedViews: {},
-            hasAtLeastOneView: false
+            hasAtLeastOneView: false,
+            loading: false,
+            currentId: null
         }
     },
     mounted() {
@@ -188,36 +197,43 @@ export default {
                     })
             }            
         },
-        createRole(index,newRoleFlag = true) {
+        async createRole(index,newRoleFlag = true) {
             var that = this;
-            let newRole = that.items[index];
-            newRole.views = [];
+            try {
+                let newRole = that.items[index];
+                newRole.views = [];
 
-            for(const selectedView in that.selectedViews) {
-                if(that.selectedViews[selectedView][index]) {
-                    let currentView = that.views.find((view)=>{
-                        return view.slug==selectedView;
-                    });
-                    newRole.views.push(currentView._id);
+                that.loading = true;
+                that.currentId = newRole._id;
+
+                for(const selectedView in that.selectedViews) {
+                    if(that.selectedViews[selectedView][index]) {
+                        let currentView = that.views.find((view)=>{
+                            return view.slug==selectedView;
+                        });
+                        newRole.views.push(currentView._id);
+                    }
                 }
-            }
 
-            if(newRoleFlag) {
-                createRole(newRole)
-                    .then((response)=>{
-                        console.log(response);
-                        that.$set(that.items,index,response.data);
-                    }).catch((e)=>{
-                        console.log(e);
-                    })
-            } else {
-                updateRole(newRole._id,newRole)
-                    .then((response)=>{
-                        console.log(response);
-                        that.$set(that.items,index,response.data);
-                    }).catch((e)=>{
-                        console.log(e);
-                    })
+                let response = null;
+
+                if(newRoleFlag) {
+                    response = await createRole(newRole);
+                } else {
+                    response = await updateRole(newRole._id,newRole);
+                }
+                that.$set(that.items,index,response.data);
+
+                setTimeout(()=>{
+                    that.loading = false;
+                    that.currentId = null;
+                },500);
+            } catch(e) {
+                console.log(e);
+                setTimeout(()=>{
+                    that.loading = false;
+                    that.currentId = null;
+                },500);
             }
         }
     }
@@ -225,24 +241,13 @@ export default {
 </script>
 
 <style lang="scss">
-.table > :not(caption) > * > * {
-    vertical-align: middle;
+.canal13
+{
+    color: #F86423 !important;
 }
 
-tr.new-row
-{ 
-    padding-top:10px;
-    box-sizing: border-box;
-    height: 90px;
+.table > :not(caption) > * > * {
     vertical-align: middle;
-    border-top: 3px solid white;
-
-    td,
-    td:hover
-    {
-        background-color: #131313 !important;
-        vertical-align: middle;
-    }
 }
 
 tr 
@@ -276,6 +281,32 @@ tr
         {
             background-color: #131313 !important;
             box-shadow: inset 0 0 0 9999px rgba(#557799,0.2) !important;
+        }
+    }
+}
+
+tr.new-row
+{ 
+    padding-top:10px;
+    box-sizing: border-box;
+    height: 90px;
+    vertical-align: middle;
+
+    td,
+    td:hover
+    {
+        background-color: rgba(40,20,0,0.6) !important;
+        box-shadow: unset !important;
+        vertical-align: middle;
+        border-top: 3px solid white;
+        border-bottom: 3px solid white;
+        z-index: 2;
+
+        &.functions,
+        &.admins
+        {
+            background-color: rgba(40,20,0,0.8) !important;
+            box-shadow: none !important;
         }
     }
 }

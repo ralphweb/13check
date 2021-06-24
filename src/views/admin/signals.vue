@@ -482,4 +482,43 @@ export default {
         background-position: center center;
     }
 }
+
+#editing
+{
+    backdrop-filter: blur(5px);
+
+    .modal-content
+    {
+        background-color: #141414 !important;
+        color: #ddd;
+        border: 1px solid #333;
+
+        .modal-header,
+        .modal-footer
+        {
+            border-bottom: 1px solid #333;
+            border-top: 1px solid #333;
+        }
+
+        strong
+        {
+            color: #F86423;
+        }
+
+        input,
+        select
+        {
+            background-color: #000 !important;
+            border: none;
+            color: white;
+        }
+    }
+    
+    .pass
+    {
+        background-color: #2e3338;
+        padding: 15px;
+        border-radius: 15px;
+    }
+}
 </style>
