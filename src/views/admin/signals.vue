@@ -171,7 +171,7 @@
 
 <script>
 import {
-    getAllSignals,
+    getallSignal,
     createSignal,
     updateSignal,
     deleteSignal
@@ -241,7 +241,7 @@ export default {
     },
     mounted() {
         var that = this;
-        getAllSignals()
+        getallSignal()
             .then((result)=>{
                 that.items = that.processSignals(result.data);
             }).catch((e)=>{

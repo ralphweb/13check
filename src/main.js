@@ -11,6 +11,9 @@ import ToggleButton from 'vue-js-toggle-button'
 import es from 'vee-validate/dist/locale/es';
 import VeeValidate, { Validator } from 'vee-validate';
 import VueHorizontal from "vue-horizontal";
+import vSelect from 'vue-select'
+
+Vue.component('v-select', vSelect)
 
 Vue.use(VeeValidate, {
   inject: true,
@@ -28,6 +31,7 @@ import 'bootstrap/dist/css/bootstrap.css'
 import 'bootstrap-vue/dist/bootstrap-vue.css'
 // Import the styles too, typically in App.vue or main.js
 import 'vue-swatches/dist/vue-swatches.css'
+import 'vue-select/dist/vue-select.css';
 
 // Make BootstrapVue available throughout your project
 Vue.use(BootstrapVue)

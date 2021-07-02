@@ -1,12 +1,62 @@
 <template>
-<div v-bind:class="{'container-fluid app transition fadeInDown':true}" ref="container" v-hammer:swipe.up="onSwipeUp" v-hammer:swipe.down="onSwipeDown">
+<div v-bind:class="{'container-fluid app transition fadeInDown':true}" ref="container">
     <multipane layout="vertical" class="w-100">
         <div :style="{ width: '70vw', minWidth: '30vw', maxWidth: '70vw' }" class="fadeIn catalog">
             <signal :ref="'signal'" :index="0" v-bind:key="i" v-for="(signal,i) in [currentSignals[0]]" header="left"/>
         </div>
         <multipane-resizer></multipane-resizer>
-        <div :style="{ flexGrow: 1 }">
-            Formulario
+        <div :style="{ flexGrow: 1 }" class="p-4 overflow-auto">
+            <b-form @submit="onSubmit">
+                <b-row>
+                    <b-col class="dynamic">
+                        <b-form-group
+                            id="input-group-1"
+                            label="Email address:"
+                            label-for="input-1"
+                            description="We'll never share your email with anyone else."
+                        >
+                            <b-form-input
+                            id="input-1"
+                            type="email"
+                            placeholder="Enter email"
+                            ></b-form-input>
+                        </b-form-group>
+
+                        <b-form-group id="input-group-2" label="Your Name:" label-for="input-2">
+                            <b-form-input
+                            id="input-2"
+                            placeholder="Enter name"
+                            ></b-form-input>
+                        </b-form-group>
+                    </b-col>
+                    <b-col class="dynamic">
+                        <b-form-group :id="'input-group-crud'+c" :label="crud.name" :label-for="'input-crud'+c" v-for="(crud,c) in cruds" v-bind:key="c">
+                            <v-select :name="'input-crud'+c" :id="'input-crud'+c" :filterable="false" :taggable="true" :multiple="crud.multiple" v-model="form[crud.slug.toLowerCase()]" :label="crud.label" :options="crud.data" @search="crud.onSearch">
+                                <template slot="no-options">
+                                Escribe para buscar {{crud.name}}
+                                </template>
+                            </v-select>
+                        </b-form-group>
+                    </b-col>
+                </b-row>
+                <b-row>
+                    <b-col sm="12">
+                        <b-form-group id="input-group-4" v-slot="{ ariaDescribedby }">
+                            <b-form-checkbox-group
+                            v-model="form.checked"
+                            id="checkboxes-4"
+                            :aria-describedby="ariaDescribedby"
+                            >
+                            <b-form-checkbox value="me">Check me out</b-form-checkbox>
+                            <b-form-checkbox value="that">Check that out</b-form-checkbox>
+                            </b-form-checkbox-group>
+                        </b-form-group>
+
+                        <b-button type="submit" variant="primary">Submit</b-button>
+                        <b-button type="reset" variant="danger">Reset</b-button>
+                    </b-col>
+                </b-row>
+            </b-form>
         </div>
     </multipane>
 </div>
@@ -19,7 +69,16 @@ import Loader from '@/components/Loader.vue';
 import signal from '@/components/Signal.vue';
 import { Multipane, MultipaneResizer } from 'vue-multipane';
 import {
-    getSignals
+    getSignals,
+    searchCountry,
+    searchPerson,
+    searchShow,
+    searchTopic,
+    searchAge,
+    searchCategory,
+    getCatalog,
+    createCatalog,
+    updateCatalog,
 } from '@/helpers/API.js';
 
 export default {
@@ -40,16 +99,90 @@ export default {
         return {
             loaded: false,
             signals: [],
+            countries: [],
             minTime: (new Date(today)).setHours(today.getHours()-2).valueOf(),
             maxTime: today.valueOf(),
             currentTime: today.valueOf(),
-            isHandlerDragging: false
+            isHandlerDragging: false,
+            form: {
+            },
+            options: [],
+            API:{
+                searchCountry,
+                searchPerson,
+                searchShow,
+                searchTopic,
+                searchAge,
+                searchCategory,
+            },
+            cruds: [
+                {
+                    name:"Países",
+                    slug:"Country",
+                    label:"country_name",
+                    data:[],
+                    onSearch(search, loading) {
+                        that.onSearch(search,loading,"Country");
+                    },
+                },
+                {
+                    name:"Rostros",
+                    slug:"Person",
+                    label:"name",
+                    multiple:true,
+                    data:[],
+                    onSearch(search, loading) {
+                        that.onSearch(search,loading,"Person");
+                    },
+                },
+                {
+                    name:"Programas",
+                    slug:"Show",
+                    label:"name",
+                    data:[],
+                    onSearch(search, loading) {
+                        that.onSearch(search,loading,"Show");
+                    },
+                },
+                {
+                    name:"Temas",
+                    slug:"Topic",
+                    label:"name",
+                    data:[],
+                    onSearch(search, loading) {
+                        that.onSearch(search,loading,"Topic");
+                    },
+                },
+                {
+                    name:"Clasificaciones de Edad",
+                    slug:"Age",
+                    label:"name",
+                    data:[],
+                    onSearch(search, loading) {
+                        that.onSearch(search,loading,"Age");
+                    },
+                },
+                {
+                    name:"Categorías",
+                    slug:"Category",
+                    label:"name",
+                    data:[],
+                    onSearch: (search, loading) => {
+                        that.onSearch(search,loading,"Category");
+                    },
+                },
+            ],
         }
     },
-    created() {
+    async created() {
         var that = this;
         if (!that.$session.exists()) {
             window.location = "/login";
+        }
+
+        if(that.$route.params.hasOwnProperty("id")&&that.$route.params.id!=undefined) {
+            let result = await getCatalog(that.$route.params.id);
+            that.form = result.data;
         }
     },
     async mounted() {
@@ -67,9 +200,30 @@ export default {
             }).catch((err)=>{
                 console.log(err);
             })
-        console.log(that.$refs);
+        that.form.user = that.user;
     },
     methods: {
+        onSubmit(event) {
+            var that = this;
+            event.preventDefault()
+            if(that.$route.params.id!=undefined) {
+                updateCatalog(that.$route.params.id,that.form)
+                    .then((result)=>{
+                        console.log(result.data);
+                        that.$router.push("/catalogo/"+result.data._id);
+                    }).catch((err)=>{
+                        console.log(err);
+                    })
+            } else {
+                createCatalog(that.form)
+                    .then((result)=>{
+                        console.log(result.data);
+                        that.$router.push("/catalogo/"+result.data._id);
+                    }).catch((err)=>{
+                        console.log(err);
+                    })
+            }
+        },
         checkAvailable() {
             let that = this;
             let inUse = [];
@@ -96,16 +250,21 @@ export default {
         prettify(ts) {
             return moment(ts).format('YYYY-MM-DD HH:mm:ss.SSS');
         },
-        onSwipeUp() {
+        async onSearch(search,loading,slug) {
             var that = this;
-            that.current = that.current-1>=0?that.current-1:that.signalsCurrent.length-1;
-            that.$scrollTo(".signal:nth-of-type("+that.current+")");
-            that.$scrollTo("#video"+that.signalsCurrent[that.current].idRating);
-        },
-        onSwipeDown() {
-            var that = this;
-            that.current = that.current+1<that.signalsCurrent.length?that.current+1:0;
-            that.$scrollTo("#video"+that.signalsCurrent[that.current].idRating);
+            if(search.length) {
+                loading(true);
+                let family = that.cruds.find((crud)=>{
+                    return crud.slug == slug;
+                })
+                that.API["search"+slug](search)
+                    .then((res)=>{                                    
+                        family.data = res.data;
+                        loading(false);
+                    }).catch((err)=>{
+                        console.log(err);
+                    })
+            }
         }
     },
     computed: {
@@ -210,6 +369,18 @@ $breakpoint-tablet: 735px;
     {
       height: 100%;
       padding: 0px;
+
+      .form-group
+        {
+            color: white;
+            text-align: left;
+        }
+
+      &.dynamic
+      {
+        min-width: 16vw;
+        margin: 0px 10px;
+      }
 
       &.middle
       {

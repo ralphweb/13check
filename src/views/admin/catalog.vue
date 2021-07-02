@@ -123,7 +123,7 @@
                                     :name="family.slug.toLowerCase()+'input-name'+row.index"
                                     placeholder="Ingrese nombre..."
                                     v-model="row.item.name"
-                                    v-validate="{ required: true, min: 2, regex: /^[ A-Za-z0-9_@./#&+-]*$/ }"
+                                    v-validate="{ required: true, min: 2, alpha_spaces:true }"
                                     :state="validateState(family.slug.toLowerCase()+'input-name'+row.index)"
                                     :aria-describedby="family.slug.toLowerCase()+'feedback-name'+row.index"
                                     data-vv-as="Nombre"

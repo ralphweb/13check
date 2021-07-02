@@ -68,7 +68,7 @@ const getSignals = () => {
   return api.get("/signal",{});
 };
 
-const getAllSignals = () => {
+const getallSignal = () => {
   return api.get("/signal/all",{});
 };
 
@@ -91,6 +91,10 @@ const getallCountry = () => {
   return api.get("/country/all",{});
 };
 
+const searchCountry = (query) => {
+  return api.post("/country/search",{query:query});
+};
+
 const createCountry = (country) => {
   return api.post("/country",country);
 };
@@ -106,6 +110,10 @@ const deleteCountry = (id) => {
 /* PERSON */
 const getallPerson = () => {
   return api.get("/person/all",{});
+};
+
+const searchPerson = (query) => {
+  return api.post("/person/search",{query:query});
 };
 
 const createPerson = (person) => {
@@ -125,6 +133,10 @@ const getallShow = () => {
   return api.get("/show/all",{});
 };
 
+const searchShow = (query) => {
+  return api.post("/show/search",{query:query});
+};
+
 const createShow = (show) => {
   return api.post("/show",show);
 };
@@ -140,6 +152,10 @@ const deleteShow = (id) => {
 /* TOPIC */
 const getallTopic = () => {
   return api.get("/topic/all",{});
+};
+
+const searchTopic = (query) => {
+  return api.post("/topic/search",{query:query});
 };
 
 const createTopic = (topic) => {
@@ -159,6 +175,10 @@ const getallAge = () => {
   return api.get("/age/all",{});
 };
 
+const searchAge = (query) => {
+  return api.post("/age/search",{query:query});
+};
+
 const createAge = (age) => {
   return api.post("/age",age);
 };
@@ -176,6 +196,10 @@ const getallCategory = () => {
   return api.get("/category/all",{});
 };
 
+const searchCategory = (query) => {
+  return api.post("/category/search",{query:query});
+};
+
 const createCategory = (category) => {
   return api.post("/category",category);
 };
@@ -186,6 +210,19 @@ const updateCategory = (id,category) => {
 
 const deleteCategory = (id) => {
   return api.delete("/category/"+id,{});
+};
+
+/* CATALOG */
+const getCatalog = (id) => {
+  return api.get("/catalog/"+id,{});
+};
+
+const createCatalog = (catalog) => {
+  return api.post("/catalog",catalog);
+};
+
+const updateCatalog = (id,catalog) => {
+  return api.put("/catalog/"+id,catalog);
 };
 
 export {
@@ -202,32 +239,41 @@ export {
   updateUser,
   deleteUser,
   getSignals,
-  getAllSignals,
+  getallSignal,
   createSignal,
   updateSignal,
   deleteSignal,
   getallCountry,
+  searchCountry,
   createCountry,
   updateCountry,
   deleteCountry,
   getallPerson,
+  searchPerson,
   createPerson,
   updatePerson,
   deletePerson,
   getallShow,
+  searchShow,
   createShow,
   updateShow,
   deleteShow,
   getallTopic,
+  searchTopic,
   createTopic,
   updateTopic,
   deleteTopic,
   getallAge,
+  searchAge,
   createAge,
   updateAge,
   deleteAge,
   getallCategory,
+  searchCategory,
   createCategory,
   updateCategory,
   deleteCategory,
+  getCatalog,
+  createCatalog,
+  updateCatalog,
 };

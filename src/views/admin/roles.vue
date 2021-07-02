@@ -67,8 +67,8 @@
                     
                 </b-form-checkbox>
             </template>
-            <template #cell(form)="data">
-                <b-form-checkbox v-model="selectedViews.form[data.index]" @change="toggleSelectedViews('form',data.index)">
+            <template #cell(catalog)="data">
+                <b-form-checkbox v-model="selectedViews.catalog[data.index]" @change="toggleSelectedViews('catalog',data.index)">
                     
                 </b-form-checkbox>
             </template>

@@ -33,7 +33,7 @@ var routes = [
     }
   },
   {
-    path: '/catalogo',
+    path: '/catalogo/:id?',
     name: 'Catálogo',
     component: function () {
       return import('../views/catalog.vue')
@@ -55,30 +55,30 @@ var routes = [
   },
   {
     path: '/admin/signals',
-    name: 'Señales',
+    name: 'AdminSeñales',
     component: function () {
       return import('../views/admin/signals.vue')
     }
   },
   {
     path: '/admin/users',
-    name: 'Usuarios',
+    name: 'AdminUsuarios',
     component: function () {
       return import('../views/admin/users.vue')
     }
   },
   {
     path: '/admin/roles',
-    name: 'Roles',
+    name: 'AdminRoles',
     component: function () {
       return import('../views/admin/roles.vue')
     }
   },
   {
-    path: '/admin/form',
-    name: 'Formulario',
+    path: '/admin/catalogo',
+    name: 'AdminCatálogo',
     component: function () {
-      return import('../views/admin/form.vue')
+      return import('../views/admin/catalog.vue')
     }
   }
 ]
