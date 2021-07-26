@@ -31,9 +31,6 @@ import store from "@/store";
 import moment from 'moment';
 import Loader from '@/components/Loader.vue';
 import signal from '@/components/Signal.vue';
-import {
-    getSignals
-} from '@/helpers/API.js';
 import IOdometer from 'vue-odometer';
 import 'odometer/themes/odometer-theme-default.css';
 
@@ -53,7 +50,6 @@ export default {
         },1000);
         return {
             loaded: false,
-            signals: [],
             minTime: (new Date(today)).setHours(today.getHours()-2).valueOf(),
             maxTime: today.valueOf(),
             currentTime: today.valueOf()
@@ -67,20 +63,11 @@ export default {
     },
     async mounted() {
         var that = this;
-        getSignals()
-            .then((result)=>{
-                that.signals = that.processSignals(result.data);
-                that.currentSignals = [];
-                for(let i=0;i<4;i++) {
-                    that.currentSignals.push(that.signals[i]);
-                }
-                setTimeout(()=>{
-                    that.checkAvailable();
-                },500)
-            }).catch((err)=>{
-                console.log(err);
-            })
-        console.log(that.$refs);
+        setTimeout(()=>{
+            that.currentSignals = [];
+            that.currentSignals.push(that.signals[0]);
+            that.checkAvailable();
+        },500)
     },
     methods: {
         checkAvailable() {
@@ -92,16 +79,6 @@ export default {
             that.availableSignals = that.signals.filter((signal)=>{
                 return !inUse.includes(signal._id)&&signal.ipServer!="";
             })
-        },
-        processSignals(data) {
-            return data.map((signal)=>{
-                    let newSignal = signal;
-                    if(signal.logo.indexOf("\\")!=-1) {
-                        let logoBits = signal.logo.split("\\");
-                        newSignal.logo = logoBits.join("/");
-                    }
-                    return newSignal;
-                });
         },
         sliderChanged(values){
             console.log(values);
@@ -130,6 +107,11 @@ export default {
                 } else {
                     return null;
                 }
+            }
+        },
+        signals: {
+            get() {
+                return this.$store.state.signals;
             }
         },
         signalsLeft: {

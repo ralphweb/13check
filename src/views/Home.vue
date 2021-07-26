@@ -58,7 +58,6 @@ export default {
         },1000);
         return {
             loaded: false,
-            signals: [],
             minTime: (new Date(today)).setHours(today.getHours()-2).valueOf(),
             maxTime: today.valueOf(),
             currentTime: today.valueOf()
@@ -69,15 +68,6 @@ export default {
         if (!that.$session.exists()) {
             window.location = "/login";
         }
-    },
-    async mounted() {
-        var that = this;
-        getSignals()
-            .then((result)=>{
-                that.signals = result.data;
-            }).catch((err)=>{
-                console.log(err);
-            })
     },
     methods: {
         sliderChanged(values){
@@ -107,6 +97,11 @@ export default {
                 } else {
                     return null;
                 }
+            }
+        },
+        signals: {
+            get() {
+                return this.$store.state.signals;
             }
         },
         signalsLeft: {

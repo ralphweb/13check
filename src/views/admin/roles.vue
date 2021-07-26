@@ -72,6 +72,56 @@
                     
                 </b-form-checkbox>
             </template>
+            <template #cell(c13)="data">
+                <b-form-checkbox v-model="selectedSignals.c13[data.index]" @change="toggleSelectedSignals('c13',data.index)">
+                    
+                </b-form-checkbox>
+            </template>
+            <template #cell(chv)="data">
+                <b-form-checkbox v-model="selectedSignals.chv[data.index]" @change="toggleSelectedSignals('chv',data.index)">
+                    
+                </b-form-checkbox>
+            </template>
+            <template #cell(mega)="data">
+                <b-form-checkbox v-model="selectedSignals.mega[data.index]" @change="toggleSelectedSignals('mega',data.index)">
+                    
+                </b-form-checkbox>
+            </template>
+            <template #cell(tvn)="data">
+                <b-form-checkbox v-model="selectedSignals.tvn[data.index]" @change="toggleSelectedSignals('tvn',data.index)">
+                    
+                </b-form-checkbox>
+            </template>
+            <template #cell(c13c)="data">
+                <b-form-checkbox v-model="selectedSignals.c13c[data.index]" @change="toggleSelectedSignals('c13c',data.index)">
+                    
+                </b-form-checkbox>
+            </template>
+            <template #cell(t13movil)="data">
+                <b-form-checkbox v-model="selectedSignals.t13movil[data.index]" @change="toggleSelectedSignals('t13movil',data.index)">
+                    
+                </b-form-checkbox>
+            </template>
+            <template #cell(tvmas)="data">
+                <b-form-checkbox v-model="selectedSignals.tvmas[data.index]" @change="toggleSelectedSignals('tvmas',data.index)">
+                    
+                </b-form-checkbox>
+            </template>
+            <template #cell(canalnuevo)="data">
+                <b-form-checkbox v-model="selectedSignals.canalnuevo[data.index]" @change="toggleSelectedSignals('canalnuevo',data.index)">
+                    
+                </b-form-checkbox>
+            </template>
+            <template #cell(canalmasnuevo)="data">
+                <b-form-checkbox v-model="selectedSignals.canalmasnuevo[data.index]" @change="toggleSelectedSignals('canalmasnuevo',data.index)">
+                    
+                </b-form-checkbox>
+            </template>
+            <template #cell(otrocanal)="data">
+                <b-form-checkbox v-model="selectedSignals.otrocanal[data.index]" @change="toggleSelectedSignals('otrocanal',data.index)">
+                    
+                </b-form-checkbox>
+            </template>
         </b-table>
     </div>
 </template>
@@ -79,6 +129,7 @@
 <script>
 import {
     getViews,
+    getallSignal,
     getRoles,
     createRole,
     updateRole,
@@ -94,6 +145,7 @@ export default {
         return {
             selected:false,
             views:[],
+            signals:[],
             fields: [
                 { key:'name',label:'Nombre',sortable:false},
                 { key:'allowRating',label:'Rating',sortable:false,tdClass:'functions'},
@@ -102,7 +154,9 @@ export default {
             ],
             items: [],
             selectedViews: {},
+            selectedSignals: {},
             hasAtLeastOneView: false,
+            hasAtLeastOneSignal: false,
             loading: false,
             currentId: null
         }
@@ -126,13 +180,32 @@ export default {
                             if(view.isAdmin) field.label = "<small>Admin</small>"+field.label;
                             if(view.isAdmin) field['tdClass'] = 'admins'
                             that.fields.push(field);
-                        })
-                        let lastField = {
-                            "key" : 'actions',
-                            "label" : 'Acciones'
-                        }
-                        that.fields.push(lastField);
+                        })                        
                         that.fillSelectedViews();
+                        getallSignal()
+                            .then((response)=>{
+                                that.signals = that.processSignals(response.data).map((signal)=>{
+                                    if(signal.idRating=='13c') signal.idRating = 'c13c';
+                                    return signal;
+                                });
+                                that.signals.forEach((signal)=>{
+                                    that.selectedSignals[signal.idRating] = new Array(that.items.length).fill(false);
+                                    let field = {
+                                        "key" : signal.idRating,
+                                        "label" : '<div class="signal-logo mx-auto" style="background-image:url('+signal.logo+');"></div>',
+                                        "tdClass" : 'signals'
+                                    }
+                                    that.fields.push(field);
+                                })
+                                let lastField = {
+                                    "key" : 'actions',
+                                    "label" : 'Acciones'
+                                }
+                                that.fields.push(lastField);
+                                that.fillSelectedSignals();
+                            }).catch((e)=>{
+                                console.log(e);
+                            })
                     }).catch((e)=>{
                         console.log(e);
                     })
@@ -144,6 +217,16 @@ export default {
         rowClass(item, type) {
             if (!item || type !== 'row') return
             if (item.status === 'newRow') return 'new-row'
+        },
+        processSignals(data) {
+            return data.map((signal)=>{
+                    let newSignal = signal;
+                    if(signal.logo.indexOf("\\")!=-1) {
+                        let logoBits = signal.logo.split("\\");
+                        newSignal.logo = logoBits.join("/");
+                    }
+                    return newSignal;
+                });
         },
         fillSelectedViews() {
             var that = this;
@@ -159,6 +242,21 @@ export default {
                 }
             }
         },
+        fillSelectedSignals() {
+            var that = this;
+            for(let i=0;i<that.items.length-1;i++) {
+                for(let j=0;j<that.items[i].signals.length;j++) {
+                    let currentSignal = that.items[i].signals[j];
+                    let found = that.signals.find((signal)=>{
+                        return signal._id == currentSignal;
+                    })
+                    console.log(found);
+                    if(found!=undefined&&that.selectedSignals.hasOwnProperty(found.idRating)) {
+                        that.selectedSignals[found.idRating][i] = true;
+                    }
+                }
+            }
+        },
         toggleSelectedViews(element,index) {
             var that = this;
             that.$set(that.selectedViews[element],index,that.selectedViews[element][index]);
@@ -170,13 +268,28 @@ export default {
                 }
             }
         },
+        toggleSelectedSignals(element,index) {
+            var that = this;
+            that.$set(that.selectedSignals[element],index,that.selectedSignals[element][index]);
+            console.log(that.selectedSignals);
+            that.hasAtLeastOneSignal = false;
+            for(const selectedSignal in that.selectedSignals) {
+                if(that.selectedSignals[selectedSignal][that.items.length-1]) {
+                    that.hasAtLeastOneSignal = true;
+                }
+            }
+        },
         newRole() {
             var that = this;
             that.items.push({ name:'Nuevo Rol',status:'newRow'});
             for(const view in that.selectedViews) {
                 that.selectedViews[view].push(false);
             }
+            for(const signal in that.selectedSignals) {
+                that.selectedSignals[signal].push(false);
+            }
             that.hasAtLeastOneView = false;
+            that.hasAtLeastOneSignal = false;
             that.createRole(that.items.length-2);
         },
         deleteRole(index) {
@@ -188,7 +301,9 @@ export default {
                 for(const view in that.selectedViews) {
                     that.selectedViews[view].splice(index,1);
                 }
-                console.log(roleToDelete._id);
+                for(const signal in that.selectedSignals) {
+                    that.selectedSignals[signal].splice(index,1);
+                }
                 deleteRole(roleToDelete._id)
                     .then((response)=>{
                         console.log(response);
@@ -202,6 +317,7 @@ export default {
             try {
                 let newRole = that.items[index];
                 newRole.views = [];
+                newRole.signals = [];
 
                 that.loading = true;
                 that.currentId = newRole._id;
@@ -212,6 +328,15 @@ export default {
                             return view.slug==selectedView;
                         });
                         newRole.views.push(currentView._id);
+                    }
+                }
+
+                for(const selectedSignal in that.selectedSignals) {
+                    if(that.selectedSignals[selectedSignal][index]) {
+                        let currentSignal = that.signals.find((signal)=>{
+                            return signal.idRating==selectedSignal;
+                        });
+                        newRole.signals.push(currentSignal._id);
                     }
                 }
 
@@ -309,5 +434,15 @@ tr.new-row
             box-shadow: none !important;
         }
     }
+}
+
+.signal-logo
+{
+    width:100%;
+    min-width: 40px;
+    aspect-ratio: 1/1;
+    background-size: contain;
+    background-position: center center;
+    background-repeat: no-repeat;
 }
 </style>

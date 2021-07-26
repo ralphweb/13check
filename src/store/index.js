@@ -10,7 +10,8 @@ export default new Vuex.Store({
     currentSignals: [],
     time: Date.now(),
     user: {},
-    views: []
+    views: [],
+    signals: []
   },
   mutations: {
     SET_IS_LOADING(state, value) {
@@ -27,6 +28,9 @@ export default new Vuex.Store({
     },
     SET_VIEWS(state, value) {
       state.views = value;
+    },
+    SET_SIGNALS(state, value) {
+      state.signals = value;
     },
     SET_CURRENT_SIGNALS(state, value) {
       state.currentSignals = value;

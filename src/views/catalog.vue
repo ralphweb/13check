@@ -69,7 +69,6 @@ import Loader from '@/components/Loader.vue';
 import signal from '@/components/Signal.vue';
 import { Multipane, MultipaneResizer } from 'vue-multipane';
 import {
-    getSignals,
     searchCountry,
     searchPerson,
     searchShow,
@@ -98,7 +97,6 @@ export default {
         },1000);
         return {
             loaded: false,
-            signals: [],
             countries: [],
             minTime: (new Date(today)).setHours(today.getHours()-2).valueOf(),
             maxTime: today.valueOf(),
@@ -187,19 +185,13 @@ export default {
     },
     async mounted() {
         var that = this;
-        getSignals()
-            .then((result)=>{
-                that.signals = that.processSignals(result.data);
-                that.currentSignals = [];
-                for(let i=0;i<4;i++) {
-                    that.currentSignals.push(that.signals[i]);
-                }
-                setTimeout(()=>{
-                    that.checkAvailable();
-                },500)
-            }).catch((err)=>{
-                console.log(err);
-            })
+        setTimeout(()=>{
+            that.currentSignals = [];
+            that.currentSignals.push(that.signals[0]);
+        },500)
+        setTimeout(()=>{
+            that.checkAvailable();
+        },750)
         that.form.user = that.user;
     },
     methods: {
@@ -234,16 +226,6 @@ export default {
                 return !inUse.includes(signal._id)&&signal.ipServer!="";
             })
         },
-        processSignals(data) {
-            return data.map((signal)=>{
-                    let newSignal = signal;
-                    if(signal.logo.indexOf("\\")!=-1) {
-                        let logoBits = signal.logo.split("\\");
-                        newSignal.logo = logoBits.join("/");
-                    }
-                    return newSignal;
-                });
-        },
         sliderChanged(values){
             console.log(values);
         },
@@ -276,6 +258,11 @@ export default {
                 } else {
                     return null;
                 }
+            }
+        },
+        signals: {
+            get() {
+                return this.$store.state.signals;
             }
         },
         signalsLeft: {

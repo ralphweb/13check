@@ -16,6 +16,7 @@
 <script>
 import {
     getViews,
+    getallSignal,
     getRole
 } from '@/helpers/API.js';
 
@@ -39,7 +40,27 @@ export default {
         }).catch((e)=>{
           console.log(e);
         })
+      getallSignal()
+        .then((result)=>{
+          that.signals = that.processSignals(result.data).filter((signal)=>{
+            return that.user.role.signals.indexOf(signal._id)!=-1;
+          });
+        }).catch((e)=>{
+          console.log(e);
+        })
     }
+  },
+  methods: {
+    processSignals(data) {
+        return data.map((signal)=>{
+                let newSignal = signal;
+                if(signal.logo.indexOf("\\")!=-1) {
+                    let logoBits = signal.logo.split("\\");
+                    newSignal.logo = logoBits.join("/");
+                }
+                return newSignal;
+            });
+    },
   },
   computed: {
     user: {
@@ -56,6 +77,14 @@ export default {
         },
         set(value) {
             this.$store.commit('SET_VIEWS', value);
+        }
+    },
+    signals: {
+        get() {
+            return this.$store.state.signals;
+        },
+        set(value) {
+            this.$store.commit('SET_SIGNALS', value);
         }
     },
   }

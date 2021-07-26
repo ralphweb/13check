@@ -43,7 +43,7 @@ export default {
     var that = this;
     setTimeout(()=>{
       that.currentId = that.currentSignals[that.index]._id;
-    },500);
+    }, 750);
     if (flvjs.isSupported()&&that.currentSignals[that.index]) {
         var videoElement = document.getElementById('video'+that.currentSignals[that.index].idRating);
         that.flvPlayer = flvjs.createPlayer({
