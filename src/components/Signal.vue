@@ -16,21 +16,19 @@
           <h2 :style="'color:'+currentSignals[index].colorBorde">N/A</h2>
       </div>
     </div>
-    <div class="signal-player">
-        <video :id="'video'+currentSignals[index].idRating"></video>     
+    <div class="signal-player">   
+        {{prettify(currentTime)}} 
     </div>
   </div>
 </template>
 
 <script>
-import flvjs from 'flv.js';
-window.flvjs = flvjs;
+import moment from 'moment';
 
 export default {
   name: 'signal',
   data() {
     return {
-      flvPlayer: null,
       currentId: null,
       showAvailable: false
     }
@@ -44,18 +42,6 @@ export default {
     setTimeout(()=>{
       that.currentId = that.currentSignals[that.index]._id;
     }, 750);
-    if (flvjs.isSupported()&&that.currentSignals[that.index]) {
-        var videoElement = document.getElementById('video'+that.currentSignals[that.index].idRating);
-        that.flvPlayer = flvjs.createPlayer({
-            type: 'flv',
-            url: 'http://13check.ingenieriac13.cl/stream/'+that.currentSignals[that.index].ipServer
-        });
-        that.flvPlayer.attachMediaElement(videoElement);
-        that.flvPlayer.load();
-        setTimeout(()=>{
-          that.flvPlayer.play();
-        },500);
-    }
   },
   computed: {
     availableSignals: {
@@ -74,9 +60,9 @@ export default {
             this.$store.commit('SET_CURRENT_SIGNALS', value);
         }
     },
-    time: {
+    currentTime: {
         get() {
-            return this.$store.state.time;
+            return this.$store.state.currentTime;
         }
     },
     user: {
@@ -101,7 +87,10 @@ export default {
     toggleAvailable() {
       var that = this;
       that.showAvailable = !that.showAvailable;
-    }
+    },
+    prettify(ts) {
+        return moment(ts).format('HH:mm:ss.SSS');
+    },
   }
 }
 </script>
@@ -247,7 +236,7 @@ export default {
     flex: 0 0 auto;
     display: grid;
     color: white;
-    background-color: magenta;
+    background-color: black;
     aspect-ratio: 16 / 9;
 
     video

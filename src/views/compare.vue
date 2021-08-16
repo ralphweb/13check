@@ -1,5 +1,5 @@
 <template>
-<div v-bind:class="{'container-fluid app transition fadeInDown':true}" v-hammer:swipe.up="onSwipeUp" v-hammer:swipe.down="onSwipeDown">
+<div v-bind:class="{'container-fluid app transition fadeInDown':true}">
     <div class="col fadeIn first signals">
       <signal :ref="'signal'" :index="i" v-bind:key="i" v-for="(signal,i) in signalsLeft" header="left"/>
     </div>
@@ -7,33 +7,15 @@
       <signal :ref="'signal'" :index="i+2" v-bind:key="i" v-for="(signal,i) in signalsRight" header="left"/>
     </div>    
     <div class="col middle fadeIn second">
-      <HistogramSlider
-        style="margin: 200px auto"
-        :width="750"
-        :bar-height="100"
-        :data="data"
-        :type="'single'"
-        :prettify="prettify"
-        :drag-interval="true"
-        :force-edges="true"
-        :primaryColor="'#FFFFFF'"
-        :holderColor="'rgba(255,255,255,0.3)'"
-        :handleColor="'#00FF00'"
-        :min="minTime"
-        :max="maxTime"
-        :step="0.1"
-        :value="time"
-        @change="sliderChanged"
-        v-if="user.role.allowRating"
-    />
+      <slider/>
     </div>
 </div>
 </template>
 
 <script>
 import store from "@/store";
-import moment from 'moment';
 import Loader from '@/components/Loader.vue';
+import Slider from '@/components/Slider.vue';
 import signal from '@/components/Signal.vue';
 import IOdometer from 'vue-odometer';
 import 'odometer/themes/odometer-theme-default.css';
@@ -42,21 +24,13 @@ export default {
     name: 'Comparador',
     components: {
         Loader,
+        Slider,
         IOdometer,
         signal
     },
     data() {
-        var that = this;
-        var today = new Date(Date.now());
-        setInterval(()=>{
-            that.time = new Date(Date.now()).valueOf();
-            that.maxTime = that.time;
-        },1000);
         return {
-            loaded: false,
-            minTime: (new Date(today)).setHours(today.getHours()-2).valueOf(),
-            maxTime: today.valueOf(),
-            currentTime: today.valueOf()
+            
         }
     },
     created() {
@@ -88,23 +62,6 @@ export default {
                 return !inUse.includes(signal._id)&&signal.ipServer!="";
             })
         },
-        sliderChanged(values){
-            console.log(values);
-        },
-        prettify(ts) {
-            return moment(ts).format('YYYY-MM-DD HH:mm:ss.SSS');
-        },
-        onSwipeUp() {
-            var that = this;
-            that.current = that.current-1>=0?that.current-1:that.signalsCurrent.length-1;
-            that.$scrollTo(".signal:nth-of-type("+that.current+")");
-            that.$scrollTo("#video"+that.signalsCurrent[that.current].idRating);
-        },
-        onSwipeDown() {
-            var that = this;
-            that.current = that.current+1<that.signalsCurrent.length?that.current+1:0;
-            that.$scrollTo("#video"+that.signalsCurrent[that.current].idRating);
-        }
     },
     computed: {
         user: {
@@ -204,7 +161,7 @@ $breakpoint-tablet: 735px;
     grid-area: app;
     display: grid;
     width:100vw;
-    grid-template-columns: auto 800px auto;
+    grid-template-columns: minmax(1fr, auto) minmax(500px, 800px) minmax(1fr, auto);
     grid-template-rows: minmax(min-content, max-content);
     grid-template-areas: "col1 middle col2";
     padding: 0px;
@@ -214,7 +171,7 @@ $breakpoint-tablet: 735px;
 
     @media only screen and (hover: none) and (pointer: coarse) and (orientation:landscape) {
       grid-template-columns: 1fr;
-      grid-template-rows: minmax(min-content, max-content) minmax(min-content, max-content) 1fr;
+      grid-template-rows: 1fr 1fr minmax(min-content, max-content);
       grid-template-areas: "col1" 
                         "col2";
       margin-bottom: 0px;

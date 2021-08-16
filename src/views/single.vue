@@ -2,26 +2,7 @@
 <div v-bind:class="{'container-fluid app transition fadeInDown':true}" v-hammer:swipe.up="onSwipeUp" v-hammer:swipe.down="onSwipeDown">
     <div class="col fadeIn single">
       <signal :ref="'signal'" :index="0" v-bind:key="i" v-for="(signal,i) in [currentSignals[0]]" header="left"/>
-    </div>
-    <div class="col middle fadeIn second">
-      <HistogramSlider
-        style="margin: 200px auto"
-        :bar-height="100"
-        :data="data"
-        :type="'single'"
-        :prettify="prettify"
-        :drag-interval="true"
-        :force-edges="true"
-        :primaryColor="'#FFFFFF'"
-        :holderColor="'rgba(255,255,255,0.3)'"
-        :handleColor="'#00FF00'"
-        :min="minTime"
-        :max="maxTime"
-        :step="0.1"
-        :value="time"
-        @change="sliderChanged"
-        v-if="user.role.allowRating"
-    />
+      <slider/>
     </div>
 </div>
 </template>
@@ -30,6 +11,7 @@
 import store from "@/store";
 import moment from 'moment';
 import Loader from '@/components/Loader.vue';
+import Slider from '@/components/Slider.vue';
 import signal from '@/components/Signal.vue';
 import IOdometer from 'vue-odometer';
 import 'odometer/themes/odometer-theme-default.css';
@@ -38,6 +20,7 @@ export default {
     name: 'Vistaunica',
     components: {
         Loader,
+        Slider,
         IOdometer,
         signal
     },
@@ -195,32 +178,14 @@ $breakpoint-tablet: 735px;
 .app {
     grid-area: app;
     display: grid;
-    grid-template-columns: 1fr minmax(150px, 25%);
+    grid-template-columns: 1fr;
     grid-template-rows: 1fr;
-    grid-template-areas: "col1 middle";
+    grid-template-areas: "col1";
     width:100vw;
     padding: 0px;
     overflow-y: auto;
     overflow-x: hidden;
     -webkit-overflow-scrolling:touch;
-
-    @media only screen and (hover: none) and (pointer: coarse) and (orientation:landscape) {
-      grid-template-columns: 1fr;
-      grid-template-rows: minmax(min-content, max-content) minmax(min-content, max-content) 1fr;
-      grid-template-areas: "col1" 
-                        "col2";
-      margin-bottom: 0px;
-      height: 100vh;
-      overflow: hidden;
-    }
-
-    @media only screen and (hover: none) and (pointer: coarse) and (orientation:portrait) {
-      grid-template-columns: 1fr;
-      grid-template-rows: minmax(min-content, max-content);
-      grid-template-areas: "col1"
-                          "col2";
-      margin-bottom: 60px;
-    }
 
     .col
     {
@@ -229,14 +194,14 @@ $breakpoint-tablet: 735px;
 
       &.single
       {
-          width: auto;
+          width: 100%;
           height: 100%;
           grid-area: col1;
           display: grid;
           grid-template-columns: 1fr;
           grid-template-rows: 1fr;
           align-content: stretch;
-          flex-basis: 90%;
+          flex-basis: 100%;
 
           .signal
           {

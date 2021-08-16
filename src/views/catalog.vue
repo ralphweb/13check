@@ -3,6 +3,7 @@
     <multipane layout="vertical" class="w-100">
         <div :style="{ width: '70vw', minWidth: '30vw', maxWidth: '70vw' }" class="fadeIn catalog">
             <signal :ref="'signal'" :index="0" v-bind:key="i" v-for="(signal,i) in [currentSignals[0]]" header="left"/>
+            <slider/>
         </div>
         <multipane-resizer></multipane-resizer>
         <div :style="{ flexGrow: 1 }" class="p-4 overflow-auto">
@@ -65,6 +66,7 @@
 <script>
 import store from "@/store";
 import moment from 'moment';
+import Slider from '@/components/Slider.vue';
 import Loader from '@/components/Loader.vue';
 import signal from '@/components/Signal.vue';
 import { Multipane, MultipaneResizer } from 'vue-multipane';
@@ -86,7 +88,8 @@ export default {
         Loader,
         signal,
         Multipane,
-        MultipaneResizer
+        MultipaneResizer,
+        Slider
     },
     data() {
         var that = this;

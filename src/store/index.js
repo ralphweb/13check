@@ -9,9 +9,12 @@ export default new Vuex.Store({
     availableSignals: [],
     currentSignals: [],
     time: Date.now(),
+    currentTime: 0,
     user: {},
     views: [],
-    signals: []
+    signals: [],
+    timeInterval: null,
+    playInterval: null,
   },
   mutations: {
     SET_IS_LOADING(state, value) {
@@ -19,6 +22,9 @@ export default new Vuex.Store({
     },
     SET_TIME(state, value) {
       state.time = value;
+    },
+    SET_CURRENT_TIME(state, value) {
+      state.currentTime = value;
     },
     SET_AVAILABLE_SIGNALS(state, value) {
       state.availableSignals = value;
@@ -31,6 +37,12 @@ export default new Vuex.Store({
     },
     SET_SIGNALS(state, value) {
       state.signals = value;
+    },
+    SET_TIME_INTERVAL(state, value) {
+      state.timeInterval = value;
+    },
+    SET_PLAY_INTERVAL(state, value) {
+      state.playInterval = value;
     },
     SET_CURRENT_SIGNALS(state, value) {
       state.currentSignals = value;

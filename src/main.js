@@ -4,14 +4,16 @@ import router from './router'
 import store from './store'
 import VueSession from 'vue-session'
 import { VueHammer } from 'vue2-hammer'
-import HistogramSlider from '@/lib/vue-histogram-slider';
-import 'vue-histogram-slider/dist/histogram-slider.css';
 import { BootstrapVue, IconsPlugin } from 'bootstrap-vue';
 import ToggleButton from 'vue-js-toggle-button'
 import es from 'vee-validate/dist/locale/es';
 import VeeValidate, { Validator } from 'vee-validate';
 import VueHorizontal from "vue-horizontal";
 import vSelect from 'vue-select'
+import VueSlider from 'vue-slider-component'
+import 'vue-slider-component/theme/default.css'
+
+Vue.component('VueSlider', VueSlider)
 
 Vue.component('v-select', vSelect)
 
@@ -61,8 +63,6 @@ Vue.use(require('vue-moment'), {
 Vue.use(VueSession,{persist:true})
 
 Vue.use(VueHammer)
-
-Vue.component(HistogramSlider.name, HistogramSlider);
 
 Vue.config.productionTip = false
 

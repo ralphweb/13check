@@ -7,25 +7,7 @@
       <signal :ref="'signal'" :index="i+2" v-bind:key="i" v-for="(signal,i) in signalsRight" header="left"/>
     </div>    
     <div class="col middle fadeIn second">
-      <HistogramSlider
-        style="margin: 200px auto"
-        :width="750"
-        :bar-height="100"
-        :data="data"
-        :type="'single'"
-        :prettify="prettify"
-        :drag-interval="true"
-        :force-edges="true"
-        :primaryColor="'#FFFFFF'"
-        :holderColor="'rgba(255,255,255,0.3)'"
-        :handleColor="'#00FF00'"
-        :min="minTime"
-        :max="maxTime"
-        :step="0.1"
-        :value="time"
-        @change="sliderChanged"
-        v-if="user.role.allowRating"
-    />
+      <slider/>
     </div>
 </div>
 </template>
@@ -34,6 +16,7 @@
 import store from "@/store";
 import moment from 'moment';
 import Loader from '@/components/Loader.vue';
+import Slider from '@/components/Slider.vue';
 import signal from '@/components/Signal.vue';
 import IOdometer from 'vue-odometer';
 import 'odometer/themes/odometer-theme-default.css';
@@ -42,6 +25,7 @@ export default {
     name: 'Todas',
     components: {
         Loader,
+        Slider,
         IOdometer,
         signal
     },
