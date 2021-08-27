@@ -96,7 +96,8 @@ export default {
         openStartDatepicker: false,
         openEndDatepicker: false,
         startDate: null,
-        endDate: null
+        endDate: null,
+        tick: 1000, 
     }
   },
   props: {
@@ -127,14 +128,6 @@ export default {
             this.$store.commit('SET_TIME_INTERVAL', value);
         }
     },
-    playInterval: {
-        get() {
-            return this.$store.state.playInterval;
-        },
-        set(value) {
-            this.$store.commit('SET_PLAY_INTERVAL', value);
-        }
-    },
     sliderValue: {
       get() {
         let that = this;
@@ -155,6 +148,11 @@ export default {
             [that.startTime,that.endTime] = value;
         } else
           that.endTime = value;
+      }
+    },
+    timelineLength: {
+      get() {
+        return (this.maxTime-this.minTime)/this.tick;
       }
     }
   },
@@ -208,6 +206,7 @@ export default {
     },
     sliderDragStart(index){
         var that = this;
+        that.play = false;
         if(that.range) 
           that.currentTime = that.minTime+(that.maxTime-that.minTime)*that.sliderValue[index]/100;
         else
@@ -296,25 +295,44 @@ export default {
         var that = this;
         if(!newVal) {
           that.live = false;
-          if(that.playInterval!=null) {
-            clearInterval(that.playInterval);
-            that.playInterval = null;
+          if(that.timeInterval!=null) {
+            clearInterval(that.timeInterval);
+            that.timeInterval = null;
           }
         } else {
           if(!that.range&&that.endTime==100) {
             that.live = true;
           }
           if(that.range) {
-            that.playInterval = setInterval(()=>{
-              //let deltaOneSecond = (that.maxTime-that.minTime)/1000;
-              let deltaOneSecond = 1;
-              console.log("playTime",that.playTime);
+            that.timeInterval = setInterval(()=>{
+              let deltaOneSecond = 100/that.timelineLength;
               that.playTime = that.playTime + deltaOneSecond;
               that.$set(that.sliderValue,1,that.playTime);
               if(that.playTime>=that.endTime) {
                 that.play = false;
               }
-            },1000)
+              that.currentTime = that.minTime+(that.maxTime-that.minTime)*that.sliderValue[1]/100;
+            },that.tick)
+          } else if(!that.live) {
+            that.timeInterval = setInterval(()=>{
+              let deltaOneSecond = 100/that.timelineLength;
+              that.endTime = that.endTime + deltaOneSecond;
+              /*
+              if(that.endTime>=100&&that.maxTime<=(new Date()).valueOf()-10000) {
+                that.maxTime = that.maxTime+10000;
+                that.endTime = 90;
+              } else if(that.endTime>=100&&that.maxTime>=(new Date()).valueOf()) {
+                that.play = false;
+                that.endTime = 100;
+              }
+              */
+              if(that.endTime>=100) {
+                that.play = false;
+                that.endTime = 100;
+              }
+              that.sliderValue = that.endTime>100?100:that.endTime;
+              that.currentTime = that.minTime+(that.maxTime-that.minTime)*that.sliderValue/100;
+            },that.tick)
           }
         }
       }

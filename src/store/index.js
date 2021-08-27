@@ -15,6 +15,7 @@ export default new Vuex.Store({
     signals: [],
     timeInterval: null,
     playInterval: null,
+    currentSignalId: null,
   },
   mutations: {
     SET_IS_LOADING(state, value) {
@@ -25,6 +26,9 @@ export default new Vuex.Store({
     },
     SET_CURRENT_TIME(state, value) {
       state.currentTime = value;
+    },
+    SET_CURRENT_SIGNAL_ID(state, value) {
+      state.currentSignalId = value;
     },
     SET_AVAILABLE_SIGNALS(state, value) {
       state.availableSignals = value;

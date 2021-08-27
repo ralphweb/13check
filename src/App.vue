@@ -554,4 +554,10 @@ thead, tbody, tfoot, tr, td, th {
 .v-select .vs__open-indicator {
   fill: #394066;
 }
+
+.video-js
+{
+  width:100% !important;
+  height:100% !important;
+}
 </style>

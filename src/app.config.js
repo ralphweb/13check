@@ -6,8 +6,8 @@ const CONFIG = {
     vue_app_title: process.env.VUE_APP_TITLE || "13Check",
     vue_app_hostname: process.env.VUE_APP_HOSTNAME || "https://lablab-desk-dashboard.simpleux.cl",
 
-    api_hostname: process.env.VUE_APP_API_HOSTNAME || "http://localhost:4100",
-    api_url: process.env.VUE_APP_API_URL || "http://localhost:4100/api/",
+    api_hostname: process.env.VUE_APP_API_HOSTNAME || "http://192.168.100.24:4100",
+    api_url: process.env.VUE_APP_API_URL || "http://192.168.100.24:4100/api/",
     //api_hostname: process.env.VUE_APP_API_HOSTNAME || "https://lablab-desk-api.simpleux.cl",
     //api_url: process.env.VUE_APP_API_URL || "https://lablab-desk-api.simpleux.cl/api/",
 

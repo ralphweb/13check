@@ -12,6 +12,12 @@ import VueHorizontal from "vue-horizontal";
 import vSelect from 'vue-select'
 import VueSlider from 'vue-slider-component'
 import 'vue-slider-component/theme/default.css'
+import VueVideoPlayer from 'vue-video-player'
+// require videojs style
+import 'video.js/dist/video-js.css'
+import 'vue-video-player/src/custom-theme.css'
+
+Vue.use(VueVideoPlayer)
 
 Vue.component('VueSlider', VueSlider)
 

@@ -161,7 +161,7 @@ $breakpoint-tablet: 735px;
     grid-area: app;
     display: grid;
     width:100vw;
-    grid-template-columns: minmax(1fr, auto) minmax(500px, 800px) minmax(1fr, auto);
+    grid-template-columns: 1fr minmax(400px, 650px) 1fr;
     grid-template-rows: minmax(min-content, max-content);
     grid-template-areas: "col1 middle col2";
     padding: 0px;

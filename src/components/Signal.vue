@@ -1,5 +1,5 @@
 <template>
-  <div v-bind:class="['signal',header]" v-if="currentSignals[index]">
+  <div v-bind:class="['signal',header]" v-if="currentSignals[index]" @click="currentSignalId=currentId">
     <div class="signal-header">
       <div class="signal-header-logo d-flex">
           <div class="signal-header-logo-img d-flex align-items-center justify-content-end" :style="'background-image:url(\''+currentSignals[index].logo+'\');'" @click="toggleAvailable"> <i v-bind:class="{'fa fa-chevron-down text-light':true,'fa-rotate-180':showAvailable}" v-if="availableSignals.length"></i></div>
@@ -17,20 +17,45 @@
       </div>
     </div>
     <div class="signal-player">   
-        {{prettify(currentTime)}} 
+        <div class="icon-active" v-if="isCurrent">
+          <i class="fa fa-volume-up"></i>
+        </div>
+        <video-player :options="videoOptions" :muted="!isCurrent"/>
     </div>
   </div>
 </template>
 
 <script>
 import moment from 'moment';
+import VideoPlayer from "@/components/VideoPlayer.vue";
+import 'video.js/dist/video-js.css';
 
 export default {
   name: 'signal',
+  components: {
+    VideoPlayer
+  },
   data() {
     return {
       currentId: null,
-      showAvailable: false
+      showAvailable: false,
+      videoOptions: {
+        // videojs and plugin options
+          autoplay: true,
+          height: '1080',
+          sources: [{
+            withCredentials: false,
+            type: "application/x-mpegURL",
+            src: "http://192.168.100.29:8000/hls_1080p/stream/index.m3u8"
+          }],
+          controlBar: {
+            timeDivider: false,
+            durationDisplay: false
+          },
+          flash: { hls: { withCredentials: false }},
+          html5: { hls: { withCredentials: false }},
+          poster: "https://surmon-china.github.io/vue-quill-editor/static/images/surmon-5.jpg"
+      }
     }
   },
   props: {
@@ -44,6 +69,12 @@ export default {
     }, 750);
   },
   computed: {
+    isCurrent: {
+      get() {
+        var that = this;
+        return (that.currentSignalId==that.currentId);
+      }
+    },
     availableSignals: {
         get() {
             return this.$store.state.availableSignals;
@@ -58,6 +89,14 @@ export default {
         },
         set(value) {
             this.$store.commit('SET_CURRENT_SIGNALS', value);
+        }
+    },
+    currentSignalId: {
+        get() {
+            return this.$store.state.currentSignalId;
+        },
+        set(value) {
+            this.$store.commit('SET_CURRENT_SIGNAL_ID', value);
         }
     },
     currentTime: {
@@ -90,6 +129,13 @@ export default {
     },
     prettify(ts) {
         return moment(ts).format('HH:mm:ss.SSS');
+    },
+    playerReadied(player) {
+      var hls = player.tech({ IWillNotUseThisInPlugins: true }).hls
+      player.tech_.hls.xhr.beforeRequest = function(options) {
+        // console.log(options)
+        return options
+      }
     },
   }
 }
@@ -139,6 +185,11 @@ export default {
       grid-template-columns: 1fr 12%;
       grid-template-areas: "player head";
     }
+  }
+
+  &.current
+  {
+    border: 1px solid red;
   }
 
   &-header {
@@ -238,11 +289,16 @@ export default {
     color: white;
     background-color: black;
     aspect-ratio: 16 / 9;
+    position: relative;
 
-    video
+
+    .icon-active
     {
-      width:100%;
-      height: 100%;
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      z-index: 9;
+      text-shadow: 2px 2px 2px black;
     }
   }
 }
