@@ -6,6 +6,8 @@ Vue.use(Vuex)
 export default new Vuex.Store({
   state: {
     loading: false,
+    live: true,
+    play: true,
     availableSignals: [],
     currentSignals: [],
     time: Date.now(),
@@ -20,6 +22,12 @@ export default new Vuex.Store({
   mutations: {
     SET_IS_LOADING(state, value) {
       state.loading = value;
+    },
+    SET_LIVE(state, value) {
+      state.live = value;
+    },
+    SET_PLAY(state, value) {
+      state.play = value;
     },
     SET_TIME(state, value) {
       state.time = value;

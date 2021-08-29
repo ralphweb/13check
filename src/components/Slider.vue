@@ -91,8 +91,6 @@ export default {
         playTime: 0,
         endTime: 100,
         range: false,
-        live: true,
-        play: true,
         openStartDatepicker: false,
         openEndDatepicker: false,
         startDate: null,
@@ -112,6 +110,22 @@ export default {
     that.updateTime();
   },
   computed: {
+    live: {
+        get() {
+            return this.$store.state.live;
+        },
+        set(value) {
+            this.$store.commit('SET_LIVE', value);
+        }
+    },
+    play: {
+        get() {
+            return this.$store.state.play;
+        },
+        set(value) {
+            this.$store.commit('SET_PLAY', value);
+        }
+    },
     currentTime: {
         get() {
             return this.$store.state.currentTime;
@@ -201,8 +215,6 @@ export default {
           that.currentTime = that.minTime+(that.maxTime-that.minTime)*value[index]/100;
         else
           that.currentTime = that.minTime+(that.maxTime-that.minTime)*value/100;
-
-        console.log('drag',value,index);
     },
     sliderDragStart(index){
         var that = this;
@@ -211,7 +223,6 @@ export default {
           that.currentTime = that.minTime+(that.maxTime-that.minTime)*that.sliderValue[index]/100;
         else
           that.currentTime = that.minTime+(that.maxTime-that.minTime)*that.sliderValue/100;
-        console.log('drag-start',that.sliderValue[index]);
     },
     sliderKeyLeft(e) {
       let that = this;

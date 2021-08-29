@@ -51,6 +51,10 @@ export default {
             that.currentSignals.push(that.signals[0]);
             that.checkAvailable();
         },500)
+
+        that.$root.$on('checkAvailable', () => {
+            that.checkAvailable();
+        });
     },
     methods: {
         checkAvailable() {

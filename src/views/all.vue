@@ -60,6 +60,10 @@ export default {
         setTimeout(()=>{            
             that.checkAvailable();
         },750)
+
+        that.$root.$on('checkAvailable', () => {
+            that.checkAvailable();
+        });
     },
     methods: {
         checkAvailable() {

@@ -9,24 +9,6 @@
     <div class="col middle fadeIn second">
       <a href="#" v-scroll-to="'#video'+signal.idRating" v-for="(signal,k) in signalsLeft" v-bind:key="k">{{signal.name}}</a>
       <a href="#" v-scroll-to="'#video'+signal.idRating" v-for="(signal,l) in signalsRight" v-bind:key="l+2">{{signal.name}}</a>
-      <HistogramSlider
-        style="margin: 200px auto"
-        :width="750"
-        :bar-height="100"
-        :data="data"
-        :type="'single'"
-        :prettify="prettify"
-        :drag-interval="true"
-        :force-edges="true"
-        :primaryColor="'#FFFFFF'"
-        :holderColor="'rgba(255,255,255,0.3)'"
-        :handleColor="'#00FF00'"
-        :min="minTime"
-        :max="maxTime"
-        :step="0.1"
-        :value="currentTime"
-        @change="sliderChanged"
-    />
     </div>
 </div>
 </template>

@@ -196,6 +196,10 @@ export default {
             that.checkAvailable();
         },750)
         that.form.user = that.user;
+
+        that.$root.$on('checkAvailable', () => {
+            that.checkAvailable();
+        });
     },
     methods: {
         onSubmit(event) {

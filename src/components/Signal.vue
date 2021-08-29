@@ -20,7 +20,7 @@
         <div class="icon-active" v-if="isCurrent">
           <i class="fa fa-volume-up"></i>
         </div>
-        <video-player :options="videoOptions" :muted="!isCurrent"/>
+        <video-player :options="videoOptions" :muted="!isCurrent" :ip="currentSignals[index].ipServer" :time="currentTime" :live="live"/>
     </div>
   </div>
 </template>
@@ -41,20 +41,11 @@ export default {
       showAvailable: false,
       videoOptions: {
         // videojs and plugin options
-          autoplay: true,
           height: '1080',
-          sources: [{
-            withCredentials: false,
-            type: "application/x-mpegURL",
-            src: "http://192.168.100.29:8000/hls_1080p/stream/index.m3u8"
-          }],
           controlBar: {
             timeDivider: false,
             durationDisplay: false
-          },
-          flash: { hls: { withCredentials: false }},
-          html5: { hls: { withCredentials: false }},
-          poster: "https://surmon-china.github.io/vue-quill-editor/static/images/surmon-5.jpg"
+          }
       }
     }
   },
@@ -112,6 +103,11 @@ export default {
             this.$store.commit('SET_USER', value);
         }
     },
+    live: {
+        get() {
+            return this.$store.state.live;
+        }
+    },
   },
   methods: {
     replaceSignal(av) {
@@ -120,7 +116,7 @@ export default {
       let oldSignal = that.currentSignals[that.index];
       that.currentSignals[that.index] = nextSignal;
       that.currentId = nextSignal._id;
-      that.$parent.checkAvailable();
+      that.$root.$emit('checkAvailable');
       that.showAvailable = false;
     },
     toggleAvailable() {
@@ -129,13 +125,6 @@ export default {
     },
     prettify(ts) {
         return moment(ts).format('HH:mm:ss.SSS');
-    },
-    playerReadied(player) {
-      var hls = player.tech({ IWillNotUseThisInPlugins: true }).hls
-      player.tech_.hls.xhr.beforeRequest = function(options) {
-        // console.log(options)
-        return options
-      }
     },
   }
 }
