@@ -93,8 +93,6 @@ export default {
         range: false,
         openStartDatepicker: false,
         openEndDatepicker: false,
-        startDate: null,
-        endDate: null,
         tick: 1000, 
     }
   },
@@ -132,6 +130,22 @@ export default {
         },
         set(value) {
             this.$store.commit('SET_CURRENT_TIME', value);
+        }
+    },
+    startDate: {
+        get() {
+            return this.$store.state.startDate;
+        },
+        set(value) {
+            this.$store.commit('SET_START_DATE', value);
+        }
+    },
+    endDate: {
+        get() {
+            return this.$store.state.endDate;
+        },
+        set(value) {
+            this.$store.commit('SET_END_DATE', value);
         }
     },
     timeInterval: {

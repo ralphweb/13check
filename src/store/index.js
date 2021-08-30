@@ -18,6 +18,8 @@ export default new Vuex.Store({
     timeInterval: null,
     playInterval: null,
     currentSignalId: null,
+    startDate: null,
+    endDate: null,
   },
   mutations: {
     SET_IS_LOADING(state, value) {
@@ -58,6 +60,12 @@ export default new Vuex.Store({
     },
     SET_CURRENT_SIGNALS(state, value) {
       state.currentSignals = value;
+    },
+    SET_START_DATE(state, value) {
+      state.startDate = value;
+    },
+    SET_END_DATE(state, value) {
+      state.endDate = value;
     }
   },
   actions: {

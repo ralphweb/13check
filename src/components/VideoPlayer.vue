@@ -25,6 +25,7 @@ export default {
     },
     data() {
         return {
+            loading: false,
             player: null,
             currentFile: null,
             currentStart: null,
@@ -65,17 +66,23 @@ export default {
             let query = moment(that.time);
             if(!that.live&&now.diff(query,'minutes')>15) {
                 that.isLive = false;
-                if(that.currentFile==null||query.isBefore(that.currentStart)||query.isAfter(that.currentEnd)) {
+                if(!that.loading&&(that.currentFile==null||query.isBefore(that.currentStart)||query.isAfter(that.currentEnd))) {
+                    that.loading = true;
                     that.localTime = that.time;
                     axios
                         .get('http://'+that.ip+':7900/video/'+query.format('YYYY-MM-DD[_]HH-mm-ss'))
                         .then((response) => {
+                            that.loading = false;
                             console.log(response);
                             that.currentFile = response.data.path;
                             that.currentStart = response.data.timestampStart;
                             that.currentEnd = response.data.timestampEnd;
                             that.diff = response.data.diff;
                         })
+                } else {
+                    let localDiff = ((that.diff*1000)+moment(that.time).diff(that.localTime))/1000;
+                    console.log("moving cursor",localDiff);
+                    if(!that.play) that.player.currentTime(localDiff);
                 }
             } else if(that.live&&that.player!=null&&!that.isLive) {
                 that.isLive = true;
