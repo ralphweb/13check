@@ -1,13 +1,11 @@
 <template>
 <div v-bind:class="{'container-fluid app transition fadeInDown':true}" v-hammer:swipe.up="onSwipeUp" v-hammer:swipe.down="onSwipeDown">
-    <div class="col fadeIn first signals">
-      <signal :ref="'signal'" :index="i" v-bind:key="i" v-for="(signal,i) in signalsLeft" header="left"/>
+    <div class="rows fadeIn first main">
+        <signal :ref="'signal'" :index="i" v-bind:key="i" v-for="(signal,i) in signalsLeft" header="left"/>
+        <slider/>
     </div>
-    <div class="col fadeIn first signals">
-      <signal :ref="'signal'" :index="i+2" v-bind:key="i" v-for="(signal,i) in signalsRight" header="left"/>
-    </div>    
-    <div class="col middle fadeIn second">
-      <slider/>
+    <div class="rows fadeIn second signals">
+      <signal :ref="'signal'" :index="i+1" v-bind:key="i" v-for="(signal,i) in signalsRight" header="left"/>
     </div>
 </div>
 </template>
@@ -114,7 +112,7 @@ export default {
             get() {
                 let that = this;
                 return that.currentSignals.filter((signal,i)=>{
-                    return i<2;
+                    return i<1;
                 });
             }
         },
@@ -122,7 +120,7 @@ export default {
             get() {
                 let that = this;
                 return that.currentSignals.filter((signal,i)=>{
-                    return i>=2&&i<4;
+                    return i>=1;
                 });
             }
         },
@@ -190,79 +188,62 @@ $breakpoint-tablet: 735px;
 
 .app {
     grid-area: app;
-    display: grid;
+    display: flex;
+    flex-direction: column;
     width:100vw;
-    grid-template-columns: auto 800px auto;
-    grid-template-rows: minmax(min-content, max-content);
-    grid-template-areas: "col1 middle col2";
     padding: 0px;
-    overflow-y: auto;
+    overflow-y: auto !important;
     overflow-x: hidden;
     -webkit-overflow-scrolling:touch;
 
-    @media only screen and (hover: none) and (pointer: coarse) and (orientation:landscape) {
-      grid-template-columns: 1fr;
-      grid-template-rows: minmax(min-content, max-content) minmax(min-content, max-content) 1fr;
-      grid-template-areas: "col1" 
-                        "col2";
-      margin-bottom: 0px;
-      height: 100vh;
-      overflow: hidden;
-    }
-
-    @media only screen and (hover: none) and (pointer: coarse) and (orientation:portrait) {
-      grid-template-columns: 1fr;
-      grid-template-rows: minmax(min-content, max-content);
-      grid-template-areas: "col1"
-                          "col2";
-      margin-bottom: 60px;
-    }
-
-    .col
+    .rows
     {
-      height: 100%;
-      padding: 0px;
+        width: 100%;
+        position: relative;
+        --bs-gutter-x: 0rem;
 
-      &.signals
-      {
-        display: flex;
-        flex-direction: column;
-
-        &:first-of-type
+        &.main
         {
-          grid-area: col1;
+            flex-basis: auto;
+            flex-grow: 1;
+            flex-shrink: 1;
+            overflow-x: hidden;
+            overflow-y: auto;
+            display: flex;
+
+            .signal
+            {
+                height: 100%;
+                width: auto;
+                aspect-ratio: 16/10.15;
+            }
         }
-        &:last-of-type
+
+        &.signals
         {
-          grid-area: col2;
-        }
-      }
 
-      &.middle
-      {
-        grid-area: middle;
-        min-height: 80px;
+            width: 100vw;
+            height: 300px;
+            max-height: 300px;
+            display:flex;
+            overflow-x: auto;
+            overflow-y: hidden;
+            flex-wrap: nowrap;
+            background-color: black;
+            flex-basis: 300px;
+            flex-grow: 1;
+            flex-shrink: 0;
 
-        @media only screen and (hover: none) and (pointer: coarse) and (orientation:portrait) {
-          position: fixed;
-          bottom:0vh;
-          width:100vw;
-          height: 60px;
-          min-height: 60px;
-          -webkit-backface-visibility: hidden;
-          transform: translate3d(0,0,0);
+            .signal
+            {
+                height: 100% !important;
+                min-width: 20%;
+                width: auto;
+                margin: 0px;
+                padding-left: 0px;
+                padding-right: 0px;
+            }
         }
-
-        @media only screen and (hover: none) and (pointer: coarse) and (orientation:landscape) {
-          position: fixed;
-          bottom:-60px;
-          width:100vw;
-          height: 60px;
-          min-height: 60px;
-          -webkit-backface-visibility: hidden; 
-          transform: translate3d(0,0,0);
-        }
-      }
     }
 }
 </style>

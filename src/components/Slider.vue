@@ -1,5 +1,31 @@
 <template>
-  <div v-bind:class="{'container pt-4 mt-4':true,'d-flex flex-column':range}" @keydown.left="sliderKeyLeft" @keydown.right="sliderKeyRight"  @keyup.space="play!=play">
+  <div v-bind:class="{'container pt-4 mt-4 px-4':true,'d-flex flex-column':range}" @keydown.left="sliderKeyLeft" @keydown.right="sliderKeyRight"  @keyup.space="play!=play">
+    <div class="row">
+      <div class="rating transition" v-if="user.role.allowRating">
+          <div class="ratingChartEnclosure transition">
+              <canvas id="ratingChart"></canvas>
+          </div>
+          <div id="chartjs-legend" class="noselect"></div>
+          <div class="ratingControl transition p-4">
+              <div class="form-group transition">Mostrar: 
+                  <select id="ratingRange">
+                      <option value="15@minutes" selected="selected">Los últimos 15 minutos</option>
+                      <option value="1@hours">La última hora</option>
+                      <option value="24@hours">Las últimas 24 horas</option>
+                      <option value="7@days">Los últimos 7 días</option>
+                      <option value="30@days">Los últimos 30 días</option>
+                  </select>
+              </div>
+              <div class="form-group transition">Por: 
+                  <select id="ratingUnit">
+                      <option value="minute" selected="selected">Minuto</option>
+                      <option value="hour">Hora</option>
+                      <option value="day">Día</option>
+                  </select>
+              </div>
+          </div>
+      </div>
+    </div>
     <div class="row">
       <div v-bind:class="{'transition text-light overflow-hidden text-nowrap datetime':true,'p-0 col-0':!range,'col-2':range}" @click="openStartDatepicker=true">
         <div class="date">
@@ -51,6 +77,7 @@
         </div>
         <date-picker 
           class="invisible h-0" 
+          popup-class="popup"
           v-model="endDate" 
           type="datetime" 
           format="DD-MM-YYYY HH:mm:ss.SSS" 
@@ -63,12 +90,12 @@
       </div>
     </div>
     <div class="row d-flex flex-row justify-content-around">
-      <div class="col-12">
-        <button @click="range=!range">Range: {{range}}</button>
-        <button @click="play=!play"><span v-if="!play">Play</span><span v-if="play">Pause</span></button>
-        <button @click="zoomOut" v-if="range">Zoom -</button>
-        <button @click="zoomIn" v-if="range">Zoom +</button>
-        <button v-bind:class="{'disabled':live}" @click="live=true">Live: {{live}}</button>
+      <div class="btn-group col-12 mt-2" role="group" aria-label="toolbar">
+        <button type="button" v-bind:class="{'btn d-flex flex-column align-items-center justify-content-center':true,'btn-secondary':!range,'btn-primary':range}" @click="range=!range"><i class="fa fa-2x fa-cut"></i><small>Cortar clip</small></button>
+        <button type="button" v-bind:class="{'btn d-flex flex-column align-items-center justify-content-center':true,'btn-secondary':!range,'btn-info':range}" @click="zoomOut" v-if="range"><i class="fas fa-2x fa-search-minus"></i><small>Alejar</small></button>
+        <button type="button" v-bind:class="{'btn d-flex flex-column align-items-center justify-content-center':true,'btn-secondary':!range,'btn-info':range}" @click="zoomIn" v-if="range"><i class="fas fa-2x fa-search-plus"></i><small>Acercar</small></button>
+        <button type="button" v-bind:class="{'btn d-flex flex-column align-items-center justify-content-center':true,'btn-secondary':!play,'btn-primary':play}" @click="play=!play"><i class="fa fa-2x fa-play" v-if="!play"></i><small v-if="!play">Play</small><i class="fa fa-2x fa-pause" v-if="play"></i><small v-if="play">Pausar</small></button>
+        <button type="button" v-bind:class="{'btn d-flex flex-column align-items-center justify-content-center':true,'btn-secondary':!live,'btn-primary disabled':live}" @click="live=true"><i class="fas fa-2x fa-broadcast-tower"></i><small>En vivo</small></button>
       </div>
     </div>
   </div>
@@ -182,7 +209,12 @@ export default {
       get() {
         return (this.maxTime-this.minTime)/this.tick;
       }
-    }
+    },
+    user: {
+        get() {
+            return this.$store.state.user;
+        }
+    },
   },
   methods: {
     sliderChanged(values,index){
@@ -425,6 +457,12 @@ export default {
   background-color: #F86423 !important;
 }
 
+.btn-primary
+{
+  background-color: #F86423 !important;
+  border-color: #F86423 !important;
+}
+
 .col-0
 {
   width: 0% !important;
@@ -443,6 +481,12 @@ export default {
   flex-direction: column;
   align-items: center;
   justify-content: center;
+  cursor: pointer;
+
+  &:hover
+  {
+    color: #F86423 !important;
+  }
 
   .date
   {
@@ -472,8 +516,124 @@ export default {
   height: 0px !important;
 }
 
+.popup {
+    margin-left: -100px;
+}
+
 .disabled
 {
   opacity: 0.3;
 }
+
+$color-dark: #050505;
+$color-darker: #101010;
+$color-middark: #151515;
+
+.rating
+    {
+        width: 100%;
+        height: 45vh;
+        flex-grow: 1;
+        display: flex;
+        flex-direction: row;
+        flex-wrap: wrap;
+        align-content: flex-end;
+        justify-content: center;
+        background-color: $color-darker;
+        order: 0;
+
+        @media (max-width: 769px) {
+            max-width: 100vw;
+            width: 100vw;
+            height: 49vh;
+        } 
+
+        .ratingChartEnclosure {
+            width: 80%;
+            max-height: 49vh;
+            flex-grow: 1;
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            position: relative;
+        }
+
+        #chartjs-legend {
+            position:relative;
+            width:20%;
+            padding: 10px;
+            display: flex;
+            align-items: center;
+            max-height: 40vh;
+            flex-grow: 1;
+
+            @media (max-width: 769px) {
+                align-items: flex-start;
+                max-height: 39vh;
+                overflow-y: auto;
+            }
+
+            tr:first-of-type
+            {
+                position: absolute;
+                top: 2vh;
+
+                @media (max-width: 769px) {
+                    position: relative;
+                    border-bottom: 20px solid #101010;
+                }
+            }
+
+            .chart-legend {
+                width: 20px;
+                height: 20px;
+                background-size: contain;
+                background-position: center center;
+                background-repeat: no-repeat;
+
+                tr
+                {
+                    cursor: pointer;
+
+                    &.deactivated
+                    {
+                        opacity: 0.3;
+                    }
+
+                    &.active td
+                    {
+                        font-weight: 900;
+                    }
+                }
+            }
+        }
+
+        .ratingControl
+        {
+            max-height: 80px;
+            height: max-content;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: space-evenly;
+
+            .form-group
+            {
+                margin-bottom: 0px;
+                display: flex;
+                justify-content: center;
+                flex-direction: row;
+                align-items: flex-start;
+                color: white;
+            }
+
+            select
+            {
+                background: rgba(0,0,0,0.6);
+                border-color: rgba(0,0,0,0.8);
+                color: white;
+                margin-left: 1rem;
+            }
+        }
+    }
 </style>

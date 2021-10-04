@@ -5,8 +5,15 @@
           <img src="/img/icons/13.png" class="legalRecLogo"><h1>Check</h1>
       </a>
       <div class="navbar-container" v-if="$session.exists()">
-        <router-link :to="view.path" v-for="(view,v) in views" v-bind:key="v" v-bind:class="{'admin':view.isAdmin}"><small v-if="view.isAdmin">Admin</small>{{view.name}}</router-link>
-        <router-link to="/logout" class="session">Cerrar Sesión</router-link>
+        <router-link :to="view.path" v-for="(view,v) in views" v-bind:key="v" v-bind:class="{'admin':view.isAdmin,'d-none d-md-flex':true}"><small v-if="view.isAdmin">Admin</small>{{view.name}}</router-link>
+        <router-link to="/logout" class="session d-none d-md-flex">Cerrar Sesión</router-link>
+        <button class="btn btn-secondary d-md-none" @click="showMenu = !showMenu">
+          <i class="fa fa-bars"></i>
+        </button>
+        <div v-bind:class="{'d-flex floatmenu':true,'show':showMenu}">
+          <router-link ref="menuitem" :to="view.path" v-for="(view,v) in views" v-bind:key="v" v-bind:class="{'admin':view.isAdmin,'d-md-none':true}"><small v-if="view.isAdmin">Admin</small>{{view.name}}</router-link>
+          <router-link to="/logout" class="session d-md-none">Cerrar Sesión</router-link>
+        </div>
       </div>
     </div>
     <router-view/>
@@ -71,6 +78,14 @@ export default {
             this.$store.commit('SET_USER', value);
         }
     },
+    showMenu: {
+        get() {
+            return this.$store.state.showMenu;
+        },
+        set(value) {
+            this.$store.commit('SET_SHOW_MENU', value);
+        }
+    },
     views: {
         get() {
             return this.$store.state.views;
@@ -100,7 +115,7 @@ body
 {
   margin:0;
   padding: 0;
-  background-color: #303030;
+  background-color: #101010;
   overflow: hidden;
 }
 
@@ -136,13 +151,6 @@ body
     height: auto;
     min-height: 100%;
     width: 100vw;
-  }
-
-  @media only screen and (hover: none) and (pointer: coarse) and (orientation:landscape) {
-    grid-template-columns: 1fr;
-    grid-template-rows: 1fr;
-    grid-template-areas: "app";
-    margin-bottom: 60px;
   }
 
   #nav {
@@ -559,5 +567,24 @@ thead, tbody, tfoot, tr, td, th {
 {
   width:100% !important;
   height:100% !important;
+}
+
+.floatmenu
+{
+  flex-direction: column;
+  position: fixed;
+  right:-100vw;
+  top:70px;
+  background-color: #101010;
+  overflow-x: hidden;
+  overflow-y: auto;
+  width: 100vw;
+  height: calc(100vh - 70px);
+  transition: all 500ms ease-in-out;
+
+  &.show
+  {
+    right: 0vw;
+  }
 }
 </style>

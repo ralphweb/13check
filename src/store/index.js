@@ -20,6 +20,7 @@ export default new Vuex.Store({
     currentSignalId: null,
     startDate: null,
     endDate: null,
+    showMenu: false
   },
   mutations: {
     SET_IS_LOADING(state, value) {
@@ -66,6 +67,9 @@ export default new Vuex.Store({
     },
     SET_END_DATE(state, value) {
       state.endDate = value;
+    },
+    SET_SHOW_MENU(state, value) {
+      state.showMenu = value;
     }
   },
   actions: {

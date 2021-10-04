@@ -173,24 +173,6 @@ $breakpoint-tablet: 735px;
     overflow-x: hidden;
     -webkit-overflow-scrolling:touch;
 
-    @media only screen and (hover: none) and (pointer: coarse) and (orientation:landscape) {
-      grid-template-columns: 1fr;
-      grid-template-rows: 1fr 1fr minmax(min-content, max-content);
-      grid-template-areas: "col1" 
-                        "col2";
-      margin-bottom: 0px;
-      height: 100vh;
-      overflow: hidden;
-    }
-
-    @media only screen and (hover: none) and (pointer: coarse) and (orientation:portrait) {
-      grid-template-columns: 1fr;
-      grid-template-rows: minmax(min-content, max-content);
-      grid-template-areas: "col1"
-                          "col2";
-      margin-bottom: 60px;
-    }
-
     .col
     {
       height: 100%;

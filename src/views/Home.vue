@@ -45,10 +45,17 @@ export default {
             currentTime: today.valueOf()
         }
     },
-    created() {
+    mounted() {
         var that = this;
         if (!that.$session.exists()) {
             window.location = "/login";
+        } else {
+            if(that.views[0]!=undefined)
+                that.$router.push(that.views[0].path);
+            else 
+                setTimeout(()=>{
+                    that.$router.push(that.views[0].path);
+                },1000)
         }
     },
     methods: {
@@ -108,12 +115,11 @@ export default {
                 return that.signalsLeft.concat(that.signalsRight);
             }
         },
-        data: {
+        views: {
             get() {
-                var that = this;
-                return [(new Date(that.minTime)).setMinutes((new Date(that.minTime)).getMinutes()+30),(new Date(that.minTime)).setMinutes((new Date(that.minTime)).getMinutes()+60),(new Date(that.minTime)).setMinutes((new Date(that.minTime)).getMinutes()+90),(new Date(that.minTime)).setMinutes((new Date(that.minTime)).getMinutes()+90),(new Date(that.minTime)).setMinutes((new Date(that.minTime)).getMinutes()+90)]
+                return this.$store.state.views;
             }
-        }
+        },
     },
     watch: {
       

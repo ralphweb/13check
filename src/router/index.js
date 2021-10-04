@@ -2,6 +2,7 @@ import Vue from 'vue'
 import VueRouter from 'vue-router'
 import Home from '@/views/Home.vue'
 import { logout } from '@/helpers/API.js';
+import store from '@/store';
 
 Vue.use(VueRouter)
 
@@ -90,6 +91,7 @@ const router = new VueRouter({
 })
   
 router.beforeEach((to, from, next) => {
+  store.commit('SET_SHOW_MENU', false);
   if (!Vue.prototype.$session.exists()&&to.path!='/login') {
     router.push({name:'Login'})
   }
