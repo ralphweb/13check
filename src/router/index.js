@@ -55,6 +55,13 @@ var routes = [
     }
   },
   {
+    path: '/clips',
+    name: 'Mis clips',
+    component: function () {
+      return import('../views/clips.vue')
+    }
+  },
+  {
     path: '/admin/signals',
     name: 'AdminSeñales',
     component: function () {

@@ -3,7 +3,7 @@
     <multipane layout="vertical" class="w-100">
         <div :style="{ width: '70vw', minWidth: '30vw', maxWidth: '70vw' }" class="fadeIn catalog">
             <signal :ref="'signal'" :index="0" v-bind:key="i" v-for="(signal,i) in [currentSignals[0]]" header="left"/>
-            <slider/>
+            <slider :rating="false" :crop="false"/>
         </div>
         <multipane-resizer></multipane-resizer>
         <div :style="{ flexGrow: 1 }" class="p-4 overflow-auto">

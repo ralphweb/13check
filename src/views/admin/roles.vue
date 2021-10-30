@@ -52,6 +52,11 @@
                     
                 </b-form-checkbox>
             </template>
+            <template #cell(clips)="data">
+                <b-form-checkbox v-model="selectedViews.clips[data.index]" @change="toggleSelectedViews('clips',data.index)">
+                    
+                </b-form-checkbox>
+            </template>
             <template #cell(signals)="data">
                 <b-form-checkbox v-model="selectedViews.signals[data.index]" @change="toggleSelectedViews('signals',data.index)">
                     

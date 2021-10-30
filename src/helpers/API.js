@@ -1,6 +1,7 @@
 import create from "@/helpers/axiosWithLoader";
 import createWithoutLoader from "@/helpers/axiosWithoutLoader";
 import Config from "@/app.config";
+import moment from 'moment';
 
 const api = create({
   baseURL: Config.apiUrl
@@ -225,6 +226,45 @@ const updateCatalog = (id,catalog) => {
   return api.put("/catalog/"+id,catalog);
 };
 
+/* CROPS */
+const sendCrop = (parameters) => {
+  let crop = {
+    author: parameters.author_id,
+    ipServer: parameters.ipServer,
+    timestampStart: parameters.dateini,
+    timestampEnd: parameters.dateend
+  }
+  api.post('/crop',crop)
+    .then((response)=>{
+      let captureAPI = create({
+        baseURL: 'http://'+parameters.ipServer+':7900'
+      })
+      delete parameters.author_id;
+      captureAPI.post("/crop",parameters)
+        .then((result)=>{
+          return result;
+        }).catch((err)=>{
+          console.log(err);
+          return err;
+        })
+    }).catch((err)=>{
+      console.log(err);
+      return err;
+    })
+}
+
+const getCrops = (user) => {
+  return api.get("/crop/"+user);
+}
+
+const getCropsByUser = (user) => {
+  return api.get("/crop/user/"+user);
+}
+
+const updateCrop = (id,crop) => {
+  return api.put("/crop/"+id,crop);
+};
+
 export {
   login,
   logout,
@@ -276,4 +316,8 @@ export {
   getCatalog,
   createCatalog,
   updateCatalog,
+  sendCrop,
+  getCrops,
+  getCropsByUser,
+  updateCrop
 };

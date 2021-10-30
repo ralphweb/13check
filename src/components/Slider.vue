@@ -1,7 +1,7 @@
 <template>
   <div v-bind:class="{'container pt-4 mt-4 px-4':true,'d-flex flex-column':range}" @keydown.left="sliderKeyLeft" @keydown.right="sliderKeyRight"  @keyup.space="play!=play">
     <div class="row">
-      <div class="rating transition" v-if="user.role.allowRating">
+      <div class="rating transition" v-if="user.role.allowRating&&rating!=false">
           <div class="ratingChartEnclosure transition">
               <canvas id="ratingChart"></canvas>
           </div>
@@ -91,11 +91,16 @@
     </div>
     <div class="row d-flex flex-row justify-content-around">
       <div class="btn-group col-12 mt-2" role="group" aria-label="toolbar">
-        <button type="button" v-bind:class="{'btn d-flex flex-column align-items-center justify-content-center':true,'btn-secondary':!range,'btn-primary':range}" @click="range=!range"><i class="fa fa-2x fa-cut"></i><small>Cortar clip</small></button>
+        <button type="button" v-bind:class="{'btn d-flex flex-column align-items-center justify-content-center':true,'btn-secondary':!range,'btn-primary':range}" @click="range=!range" v-if="!range&&crop!=false"><i class="fa fa-2x fa-cut"></i><small>Cortar clip</small></button>
         <button type="button" v-bind:class="{'btn d-flex flex-column align-items-center justify-content-center':true,'btn-secondary':!range,'btn-info':range}" @click="zoomOut" v-if="range"><i class="fas fa-2x fa-search-minus"></i><small>Alejar</small></button>
         <button type="button" v-bind:class="{'btn d-flex flex-column align-items-center justify-content-center':true,'btn-secondary':!range,'btn-info':range}" @click="zoomIn" v-if="range"><i class="fas fa-2x fa-search-plus"></i><small>Acercar</small></button>
         <button type="button" v-bind:class="{'btn d-flex flex-column align-items-center justify-content-center':true,'btn-secondary':!play,'btn-primary':play}" @click="play=!play"><i class="fa fa-2x fa-play" v-if="!play"></i><small v-if="!play">Play</small><i class="fa fa-2x fa-pause" v-if="play"></i><small v-if="play">Pausar</small></button>
-        <button type="button" v-bind:class="{'btn d-flex flex-column align-items-center justify-content-center':true,'btn-secondary':!live,'btn-primary disabled':live}" @click="live=true"><i class="fas fa-2x fa-broadcast-tower"></i><small>En vivo</small></button>
+        <button type="button" v-bind:class="{'btn d-flex flex-column align-items-center justify-content-center':true,'btn-secondary':!live,'btn-primary disabled':live}" @click="goLive"><i class="fas fa-2x fa-broadcast-tower"></i><small>En vivo</small></button>
+      </div>
+      <div class="btn-group col-12 mt-2" role="group" aria-label="toolbar" v-if="range">
+        <button type="button" v-bind:class="{'btn d-flex flex-column align-items-center justify-content-center':true,'btn-secondary':!range,'btn-danger':range}" @click="range=!range"><i class="fa fa-2x fa-times"></i><small>Cancelar</small></button>
+        <button type="button" v-bind:class="{'btn d-flex flex-column align-items-center justify-content-center disabled':true}" disabled></button>
+        <button type="button" v-bind:class="{'btn d-flex flex-column align-items-center justify-content-center btn-secondary':true}" @click="exportCrop" :style="'background-color:'+currentSignal.colorBorde+';border-color:'+currentSignal.colorBorde" v-if="currentSignal"><i class="fa fa-2x fa-cut"></i><small>Cortar clip</small></button>
       </div>
     </div>
   </div>
@@ -106,6 +111,7 @@ import moment from 'moment';
 import DatePicker from 'vue2-datepicker';
 import 'vue2-datepicker/index.css';
 import 'vue2-datepicker/locale/es';
+import { sendCrop } from '@/helpers/API.js';
 
 export default {
   name: 'slider',
@@ -125,7 +131,9 @@ export default {
   },
   props: {
     header: String,
-    index: Number
+    index: Number,
+    rating: Boolean,
+    crop: Boolean
   },
   mounted() {
     let that = this;
@@ -215,6 +223,28 @@ export default {
             return this.$store.state.user;
         }
     },
+    currentSignalId: {
+        get() {
+            return this.$store.state.currentSignalId;
+        }
+    },
+    signals: {
+        get() {
+            return this.$store.state.signals;
+        }
+    },
+    currentSignal: {
+      get() {
+        let that = this;
+        if(!that.currentSignalId) {
+          return null;
+        } else {
+          return that.signals.find((signal)=>{
+            return signal._id == that.currentSignalId;
+          })
+        }
+      }
+    }
   },
   methods: {
     sliderChanged(values,index){
@@ -317,6 +347,32 @@ export default {
         that.startTime = 0+percent*100;
         that.endTime = 100-percent*100;
       }
+    },
+    exportCrop() {
+      let that = this;
+      alert(that.currentSignal.name);
+      var body = {
+          "author_id": that.user._id,
+          "author":that.user.email,
+          "ipServer":that.currentSignal.ipServer,
+          "dateini": that.prettifyTooltip(that.startTime,'YYYY-MM-DD_HH-mm-ss'),
+          "dateend": that.prettifyTooltip(that.endTime,'YYYY-MM-DD_HH-mm-ss'),
+      }
+      console.log(body);
+      sendCrop(body)
+        .then((result)=>{
+          console.log(result);
+          store.commit('SET_IS_LOADING', false);
+        }).catch((err)=>{
+          console.log(err);
+          alert("Error en crop");
+          store.commit('SET_IS_LOADING', false);
+        })
+    },
+    goLive() {
+      let that = this;
+      that.live=true;
+      that.$router.go();
     }
   },
   watch: {
@@ -324,10 +380,10 @@ export default {
       immediate: true,
       handler(newVal) {
         var that = this;
-        if(newVal) that.play = true;
         if(newVal&&that.timeInterval==null) {
           that.range = false;
           that.sliderValue = 100;
+          that.currentTime = that.minTime+(that.maxTime-that.minTime)*that.sliderValue/100;
           that.updateTime();
           that.timeInterval = setInterval(that.updateTime,1000);
         } else if(!newVal) {

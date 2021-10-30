@@ -43,7 +43,7 @@ export default {
             set(value) {
                 this.$store.commit('SET_PLAY', value);
             }
-        },
+        }
     },
     mounted() {
         var that = this;
@@ -123,6 +123,23 @@ export default {
                 }
             }
         },
+        live: {
+            immediate: true,
+            handler(isLive) {
+                let that = this;
+                if(that.player) {
+                    if(isLive) {
+                        that.isLive = true;
+                        that.currentFile = null;
+                        that.player.src({
+                            withCredentials: false,
+                            type: "application/x-mpegURL",
+                            src: "http://"+that.ip+":8000/hls_1080p/stream/index.m3u8"
+                        });
+                    }
+                }
+            }
+        },
         time: {
             immediate: true,
             handler(newTime) {
@@ -134,7 +151,7 @@ export default {
             immediate: true,
             handler(newFile) {
                 let that = this;
-                if(that.player!=null) {
+                if(newFile&&that.player!=null) {
                     that.player.src({
                         type: "video/mp4",
                         src: "http://"+that.ip+":7900/getvideo/"+encodeURIComponent(newFile)
@@ -143,6 +160,8 @@ export default {
                         this.currentTime(that.diff);
                         this.pause();
                     });
+                } else {
+                    
                 }
             }
         }
