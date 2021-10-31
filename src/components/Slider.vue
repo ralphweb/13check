@@ -354,6 +354,7 @@ export default {
       var body = {
           "author_id": that.user._id,
           "author":that.user.email,
+          "signal":that.currentSignal._id,
           "ipServer":that.currentSignal.ipServer,
           "dateini": that.prettifyTooltip(that.startTime,'YYYY-MM-DD_HH-mm-ss'),
           "dateend": that.prettifyTooltip(that.endTime,'YYYY-MM-DD_HH-mm-ss'),

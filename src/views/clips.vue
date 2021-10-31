@@ -36,6 +36,25 @@
                     <b-button class="btn-success" @click="editUser(row.item._id)">Compartir</b-button>
                 </div>
             </template>
+            <template #cell(signal)="row">
+                <div class="signal-logo mx-auto" :style="'background-image:url(http://localhost:4100'+row.item.signal.logo+');'"></div>
+            </template>
+            <template #cell(timestampStartFormat)="row">
+                <div v-html="row.item.timestampStartFormat" class="date"></div>
+            </template>
+            <template #cell(timestampEndFormat)="row">
+                <div v-html="row.item.timestampEndFormat" class="date"></div>
+            </template>
+            <template #cell(created_atFormat)="row">
+                <div v-html="row.item.created_atFormat" class="date"></div>
+            </template>
+            <template #cell(duration)="row">
+                <div v-html="row.item.duration" class="date"></div>
+            </template>
+            <template #cell(output)="row">
+                <a class="btn btn-primary" :href="'http://'+row.item.signal.ipServer+':7900/getvideo/'+encodeURIComponent(row.item.output)" v-if="row.item.output"><i class="fa fa-2x fa-play"></i></a>
+                <b-button class="btn-success ml-2" @click="editUser(row.item._id)" v-if="row.item.output"><i class="fa fa-2x fa-download"></i></b-button>
+            </template>
             <template #cell(active)="row">
                 <toggle-button v-model="row.item.active"
                     color="#F86423"
@@ -216,6 +235,8 @@
 </template>
 
 <script>
+import moment from 'moment';
+import axios from 'axios';
 import {
     getCropsByUser,
     updateCrop
@@ -232,10 +253,11 @@ export default {
             fields: [
                 { key:'actions',label:'Acciones'},
                 { key:'signal',label:'Señal',sortable:true},
-                { key:'lastName',label:'Apellido',sortable:true},
-                { key:'email',label:'Correo electrónico',sortable:true},
-                { key:'phoneNumber',label:'Teléfono',sortable:true},
-                { key:'allowsGmail',label:'Gmail',sortable:true},
+                { key:'timestampStartFormat',label:'Inicio',sortable:true},
+                { key:'timestampEndFormat',label:'Final',sortable:true},
+                { key:'duration',label:'Duración (HH:mm:ss)',sortable:true},
+                { key:'created_atFormat',label:'Fecha de creación',sortable:true},
+                { key:'output',label:'Archivo',sortable:true},
                 { key:'active',label:'Activo',sortable:true},
             ],
             perPage: 15,
@@ -385,13 +407,45 @@ export default {
             that.newPassword = false;
             if(callback) callback();
             else that.$bvModal.hide("editing");
+        },
+        async processCrops(data) {
+            let that = this;
+            return await Promise.all(
+                data.map(async (item) => {
+                    if(!item.output) {
+                        let link = await axios.get("http://"+item.signal.ipServer+":7900/cropfind/"+item.author.email+"/"+item.timestampStart+"/"+item.timestampEnd);
+                        if(link.data.finished&&!link.data.processing) item.output = link.data.output;
+                        else item.output = null;
+                        item.finished = link.data.finished;
+                        item.processing = link.data.processing;
+                        await updateCrop(item._id,item);
+                    }
+                    if(item.timestampStart) {
+                        item.timeStart = moment(item.timestampStart,'YYYY-MM-DD_HH-mm-ss');
+                        item.timestampStartFormat = item.timeStart.format('[<p>]DD-MM-YYYY[<p/><span>]HH:mm:ss[</span>]');
+                    }
+                    if(item.timestampEnd) {
+                        item.timeEnd = moment(item.timestampEnd,'YYYY-MM-DD_HH-mm-ss');
+                        item.timestampEndFormat = item.timeEnd.format('[<p>]DD-MM-YYYY[<p/><span>]HH:mm:ss[</span>]');
+                    }
+                    item.duration = moment.utc(item.timeEnd.diff(item.timeStart)).format('[<span>]HH:mm:ss[</span>]');
+                    if(item.created_at) {
+                        item.created_atFormat = moment(item.created_at).format('[<p>]DD-MM-YYYY[<p/><span>]HH:mm:ss[</span>]')
+                    }
+                    if(item.signal.logo.indexOf("\\")!=-1) {
+                        let logoBits = item.signal.logo.split("\\");
+                        item.signal.logo = logoBits.join("/");
+                    }
+                    return item;
+                })
+            )
         }
     },
     mounted() {
         var that = this;
         getCropsByUser(that.user._id)
-            .then((result)=>{
-                that.items = result.data;
+            .then(async (result)=>{
+                that.items = await that.processCrops(result.data);
                 that.totalRows = that.items.length;
             }).catch((e)=>{
                 console.log(e);
@@ -408,9 +462,42 @@ export default {
 </script>
 
 <style lang="scss">
+.signal
+{
+    &-logo
+    {
+        width: 60px;
+        height: 60px;
+        background-size: contain;
+        background-repeat: no-repeat;
+        background-position: center center;
+    }
+}
+
+.btn-primary
+{
+  background-color: #F86423 !important;
+  border-color: #F86423 !important;
+}
+
 .table > :not(caption) > * > * {
     vertical-align: middle;
     position: relative;
+}
+
+.date
+{
+    p
+    {
+        margin: 0px;
+        font-size: 14px;
+    }
+
+    span
+    {
+        font-size: 20px;
+        font-weight: bold;
+    }
 }
 
 .pagination

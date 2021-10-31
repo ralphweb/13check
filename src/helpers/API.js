@@ -1,7 +1,6 @@
 import create from "@/helpers/axiosWithLoader";
 import createWithoutLoader from "@/helpers/axiosWithoutLoader";
 import Config from "@/app.config";
-import moment from 'moment';
 
 const api = create({
   baseURL: Config.apiUrl
@@ -230,7 +229,7 @@ const updateCatalog = (id,catalog) => {
 const sendCrop = (parameters) => {
   let crop = {
     author: parameters.author_id,
-    ipServer: parameters.ipServer,
+    signal: parameters.signal,
     timestampStart: parameters.dateini,
     timestampEnd: parameters.dateend
   }
@@ -240,6 +239,7 @@ const sendCrop = (parameters) => {
         baseURL: 'http://'+parameters.ipServer+':7900'
       })
       delete parameters.author_id;
+      delete parameters.signal;
       captureAPI.post("/crop",parameters)
         .then((result)=>{
           return result;
