@@ -1,6 +1,6 @@
 <template>
     <div>
-        <video ref="videoPlayer" class="video-js" :muted="muted" autoplay="false"></video>
+        <video ref="videoPlayer" class="video-js" :muted="muted" autoplay="false" :controls="controls"></video>
     </div>
 </template>
 
@@ -12,7 +12,14 @@ import axios from "axios";
 export default {
     name: "VideoPlayer",
     props: {
-        muted: Boolean,
+        muted: {
+            type: Boolean,
+            default: true
+        },
+        controls: {
+            type: Boolean,
+            default: false
+        },
         live: Boolean,
         ip: String,
         time: Number,
@@ -21,7 +28,11 @@ export default {
             default() {
                 return {};
             }
-        }
+        },
+        url: {
+            type: String,
+            default: null
+        },
     },
     data() {
         return {
@@ -64,33 +75,40 @@ export default {
             let that = this;
             let now = moment();
             let query = moment(that.time);
-            if(!that.live&&now.diff(query,'minutes')>15) {
-                that.isLive = false;
-                if(!that.loading&&(that.currentFile==null||query.isBefore(that.currentStart)||query.isAfter(that.currentEnd))) {
-                    that.loading = true;
-                    that.localTime = that.time;
-                    axios
-                        .get('http://'+that.ip+':7900/video/'+query.format('YYYY-MM-DD[_]HH-mm-ss'))
-                        .then((response) => {
-                            that.loading = false;
-                            console.log(response);
-                            that.currentFile = response.data.path;
-                            that.currentStart = response.data.timestampStart;
-                            that.currentEnd = response.data.timestampEnd;
-                            that.diff = response.data.diff;
-                        })
-                } else {
-                    let localDiff = ((that.diff*1000)+moment(that.time).diff(that.localTime))/1000;
-                    console.log("moving cursor",localDiff);
-                    if(!that.play) that.player.currentTime(localDiff);
-                }
-            } else if(that.live&&that.player!=null&&!that.isLive) {
-                that.isLive = true;
+            if(that.url) {
                 that.player.src({
-                    withCredentials: false,
-                    type: "application/x-mpegURL",
-                    src: "http://"+that.ip+":8000/hls_1080p/stream/index.m3u8"
+                    type: "video/mp4",
+                    src: that.url
                 });
+            } else {
+                if(!that.live&&now.diff(query,'minutes')>15) {
+                    that.isLive = false;
+                    if(!that.loading&&(that.currentFile==null||query.isBefore(that.currentStart)||query.isAfter(that.currentEnd))) {
+                        that.loading = true;
+                        that.localTime = that.time;
+                        axios
+                            .get('http://'+that.ip+':7900/video/'+query.format('YYYY-MM-DD[_]HH-mm-ss'))
+                            .then((response) => {
+                                that.loading = false;
+                                console.log(response);
+                                that.currentFile = response.data.path;
+                                that.currentStart = response.data.timestampStart;
+                                that.currentEnd = response.data.timestampEnd;
+                                that.diff = response.data.diff;
+                            })
+                    } else {
+                        let localDiff = ((that.diff*1000)+moment(that.time).diff(that.localTime))/1000;
+                        console.log("moving cursor",localDiff);
+                        if(!that.play) that.player.currentTime(localDiff);
+                    }
+                } else if(that.live&&that.player!=null&&!that.isLive) {
+                    that.isLive = true;
+                    that.player.src({
+                        withCredentials: false,
+                        type: "application/x-mpegURL",
+                        src: "http://"+that.ip+":8000/hls_1080p/stream/index.m3u8"
+                    });
+                }
             }
         }
     },

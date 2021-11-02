@@ -32,8 +32,7 @@
         <b-table striped dark hover :filter="filter" :items="items" :fields="fields" :tbody-tr-class="rowClass" :per-page="perPage" :current-page="currentPage" @filtered="onFiltered">
             <template #cell(actions)="row">
                 <div class="d-flex justify-content-evenly" v-if="row.item.hasOwnProperty('_id')">
-                    <b-button class="btn-danger" @click="editUser(row.item._id)">Eliminar</b-button>
-                    <b-button class="btn-success" @click="editUser(row.item._id)">Compartir</b-button>
+                    <b-button class="btn-danger disabled" @click="editUser(row.item._id)"><i class="fa fa-2x fa-trash"></i></b-button>
                 </div>
             </template>
             <template #cell(signal)="row">
@@ -52,8 +51,9 @@
                 <div v-html="row.item.duration" class="date"></div>
             </template>
             <template #cell(output)="row">
-                <a class="btn btn-primary" :href="'http://'+row.item.signal.ipServer+':7900/getvideo/'+encodeURIComponent(row.item.output)" v-if="row.item.output"><i class="fa fa-2x fa-play"></i></a>
-                <b-button class="btn-success ml-2" @click="editUser(row.item._id)" v-if="row.item.output"><i class="fa fa-2x fa-download"></i></b-button>
+                <!--a class="btn btn-primary" :href="'http://'+row.item.signal.ipServer+':7900/crop/'+encodeURIComponent(row.item.author.email)+'/'+encodeURIComponent(row.item.fileid)" v-if="row.item.output"><i class="fa fa-2x fa-play"></i></a-->
+                <b-button class="btn-primary" @click="playVideo(row.item._id)" v-if="row.item.output"><i class="fa fa-2x fa-play"></i></b-button>
+                <a class="btn btn-success ml-2" :href="'http://'+row.item.signal.ipServer+':7900/crop/'+encodeURIComponent(row.item.author.email)+'/'+encodeURIComponent(row.item.fileid)+'/download'" v-if="row.item.output"><i class="fa fa-2x fa-download"></i></a>
             </template>
             <template #cell(active)="row">
                 <toggle-button v-model="row.item.active"
@@ -64,6 +64,44 @@
                     @change="saveToggle(row.item._id,'active',row.item.active)"
                 />
                 <b-spinner variant="success" class="canal13 ml-2 mt-2 position-absolute top-0 end-0" label="Spinning" v-if="loading&&currentId==row.item._id&&currentField=='active'"></b-spinner>
+            </template>
+            <template #cell(share)="row" class="flex-column">
+                <div class="row">
+                    <div v-bind:class="{'col-md-6':row.item.share,'col-12':true}">
+                        <toggle-button v-model="row.item.share"
+                            color="#F86423"
+                            :sync="true"
+                            :labels="{checked: 'Compartir', unchecked: 'No compartir'}"
+                            :width="110"
+                            @change="saveToggle(row.item._id,'share',row.item.share)"
+                        />
+                        <b-spinner variant="success" class="canal13 ml-2 mt-2 position-absolute top-0 end-0" label="Spinning" v-if="loading&&currentId==row.item._id&&currentField=='share'"></b-spinner>
+                    </div>
+                    <div v-bind:class="{'col-md-6':row.item.share,'col-12':true}" v-if="row.item.share">
+                        <toggle-button v-model="row.item.download"
+                            color="#198754"
+                            :sync="true"
+                            :labels="{checked: 'Descarga', unchecked: 'Sin descarga'}"
+                            :width="110"
+                            @change="saveToggle(row.item._id,'download',row.item.download)"
+                        />
+                        <b-spinner variant="success" class="canal13 ml-2 mt-2 position-absolute top-0 end-0" label="Spinning" v-if="loading&&currentId==row.item._id&&currentField=='download'"></b-spinner>
+                    </div>
+                </div>
+                <div class="row d-flex flex-nowrap w-100 mx-auto mt-2" v-if="row.item.share">
+                    <div v-bind:class="{'col-md-9':row.item.share,'col-12':true}">
+                        <div class="input-group">
+                            <input type="text" dir="rtl" v-bind:class="{'form-control clipboard text-right':true,'loading':row.item.copying=='loading'}" id="inlineFormInputGroup" placeholder="Link para compartir" v-model="row.item.share_link.permalink" readonly>
+                            <div class="input-group-prepend">
+                                <b-button class="btn-primary input-group-text rounded-right" alt="Copiar link" @click="copyLink(row.item)"><i class="fa fa-copy" v-if="!row.item.copying||row.item.copying=='idle'"></i><i class="fas fa-circle-notch fa-spin" v-if="row.item.copying=='loading'"></i><i class="fas fa-check" v-if="row.item.copying=='done'"></i></b-button>
+                            </div>
+                        </div>
+                    </div>
+                    <div v-bind:class="{'col-md-3':row.item.share,'col-12 d-flex flex-column':true}">
+                        <small>Vistas:</small>
+                        <span><strong>{{row.item.views}}</strong></span>
+                    </div>
+                </div>
             </template>
         </b-table>
 
@@ -79,153 +117,21 @@
         ></b-pagination>
 
 
-        <b-modal id="editing" title="BootstrapVue" class="backdropblur" size="xl" @hidden="closeModal()">
+        <b-modal id="player" title="BootstrapVue" class="backdropblur" size="xl" @hidden="closeModal()">
             <template #modal-header="{ close }">
-                <span v-if="tempUser&&currentId">Editar Usuario: <strong>{{tempUser.name}} {{tempUser.lastName}}</strong></span>
-                <span v-if="!currentId">Crear Usuario:</span>
-                <b-button class="d-none" size="sm" variant="outline-danger" @click="closeModal(close)">
+                <span>Reproductor de video</span>
+                <b-button size="sm" variant="outline-warning" @click="closeModal(close)">
                     X
                 </b-button>
             </template>
 
-            <b-form v-if="editingIndex!=null" @submit.stop.prevent="onSubmit">
+            <video-player :options="videoOptions" :muted="false" :url="currentUrl" :controls="true"/>
 
-                <b-form-group id="example-input-group-1" label="Nombre(s):" label-for="example-input-1">
-                    <b-form-input
-                    id="example-input-1"
-                    name="example-input-1"
-                    placeholder="Ingrese nombre(s)..."
-                    v-model="items[editingIndex].name"
-                    v-validate="{ required: true, min: 2, alpha_spaces: true }"
-                    :state="validateState('example-input-1')"
-                    aria-describedby="input-1-live-feedback"
-                    data-vv-as="Nombre(s)"
-                    ></b-form-input>
-
-                    <b-form-invalid-feedback id="input-1-live-feedback">{{ veeErrors.first('example-input-1') }}</b-form-invalid-feedback>
-                </b-form-group>
-
-                <b-form-group id="example-input-group-2" label="Apellido(s):" label-for="example-input-2">
-                    <b-form-input
-                    id="example-input-2"
-                    name="example-input-2"
-                    placeholder="Ingrese apellido(s)..."
-                    v-model="items[editingIndex].lastName"
-                    v-validate="{ required: true, min: 2, alpha_spaces: true }"
-                    :state="validateState('example-input-2')"
-                    aria-describedby="input-2-live-feedback"
-                    data-vv-as="Apellido(s)"
-                    ></b-form-input>
-
-                    <b-form-invalid-feedback id="input-2-live-feedback">{{ veeErrors.first('example-input-2') }}</b-form-invalid-feedback>
-                </b-form-group>
-
-                <b-form-group id="example-input-group-3" label="Correo electrónico:" label-for="example-input-3">
-                    <b-form-input
-                    id="example-input-3"
-                    name="example-input-3"
-                    placeholder="Ingrese correo electrónico..."
-                    v-model="items[editingIndex].email"
-                    v-validate="{ required: true, email: true }"
-                    :state="validateState('example-input-3')"
-                    aria-describedby="input-3-live-feedback"
-                    data-vv-as="Correo electrónico"
-                    ></b-form-input>
-
-                    <b-form-invalid-feedback id="input-3-live-feedback">{{ veeErrors.first('example-input-3') }}</b-form-invalid-feedback>
-                </b-form-group>
-                
-                <b-form-group id="example-input-group-4" label="Teléfono:" label-for="example-input-4">
-                    <b-form-input
-                    id="example-input-4"
-                    name="example-input-4"
-                    placeholder="Ingrese teléfono (sin signo +) o anexo..."
-                    v-model="items[editingIndex].phoneNumber"
-                    v-validate="{ required: false, min: 4, max: 12 }"
-                    :state="validateState('example-input-4')"
-                    aria-describedby="input-4-live-feedback"
-                    data-vv-as="Teléfono"
-                    ></b-form-input>
-
-                    <b-form-invalid-feedback id="input-4-live-feedback">{{ veeErrors.first('example-input-4') }}</b-form-invalid-feedback>
-                </b-form-group>
-
-                <b-form-group id="example-input-group-5" label="Rol:" label-for="example-input-5">
-                    <b-form-select
-                    id="example-input-5"
-                    name="example-input-5"
-                    v-model="items[editingIndex].role"
-                    :options="roles.map((role)=>{ return { value: role._id, text: role.name} })"
-                    v-validate="{ required: true }"
-                    :state="validateState('example-input-5')"
-                    aria-describedby="input-5-live-feedback"
-                    data-vv-as="Rol"
-                    ></b-form-select>
-
-                    <b-form-invalid-feedback id="input-5-live-feedback">{{ veeErrors.first('example-input-5') }}</b-form-invalid-feedback>
-                </b-form-group>
-
-                <b-form-checkbox
-                id="checkbox-1"
-                v-model="items[editingIndex].allowsGmail"
-                name="checkbox-1"
-                :value="true"
-                :unchecked-value="false"
-                >
-                El usuario puede iniciar sesión con su cuenta Google.
-                </b-form-checkbox>
-
-                <hr class="my-4"/>
-
-                <div class="pass">
-                    <small class="d-block text-right w-100">Sólo rellenar si desea modificar contraseña</small>
-                    <b-form-group id="example-input-group-6" label="Contraseña:" label-for="example-input-6">
-                        <b-form-input
-                        id="example-input-6"
-                        name="example-input-6"
-                        ref="example-input-6"
-                        placeholder="Ingrese nueva contraseña..."
-                        v-model="items[editingIndex].password"
-                        v-validate="{ required: currentId==null }"
-                        :state="validateState('example-input-6')"
-                        aria-describedby="input-6-live-feedback"
-                        data-vv-as="Contraseña"
-                        @input="checkForNewPassword(items[editingIndex].password)"
-                        ></b-form-input>
-
-                        <b-form-invalid-feedback id="input-6-live-feedback">{{ veeErrors.first('example-input-6') }}</b-form-invalid-feedback>
-                    </b-form-group>
-
-                    <b-form-group id="example-input-group-7" label="Confirmar contraseña:" label-for="example-input-7">
-                        <b-form-input
-                        id="example-input-7"
-                        name="example-input-7"
-                        placeholder="Ingrese nueva contraseña..."
-                        v-model="tempPassword"
-                        v-validate="{ required: newPassword, confirmed: 'example-input-6' }"
-                        :state="validateState('example-input-7')"
-                        aria-describedby="input-7-live-feedback"
-                        data-vv-as="Contraseña"
-                        ></b-form-input>
-
-                        <b-form-invalid-feedback id="input-7-live-feedback">{{ veeErrors.first('example-input-7') }}</b-form-invalid-feedback>
-                    </b-form-group>
-                </div>
-
-                <hr class="my-4"/>
-                <div class="d-flex justify-content-between w-100">
-                    <b-button type="submit" variant="success" class="mx-auto" size="lg">Guardar cambios</b-button>
-                </div>
-            </b-form>
-
-            <template #modal-footer>
+            <template #modal-footer="{ close }">
                     <!-- Emulate built in modal footer ok and cancel button actions -->
                     <div class="d-flex justify-content-between w-100">
-                        <b-button size="md" variant="danger" @click="deleteUser(editingIndex)"  v-if="tempUser&&currentId">
-                            Eliminar usuario
-                        </b-button>
-                        <b-button class="ml-auto" size="md" variant="warning" @click="closeModal()">
-                            Cancelar
+                        <b-button class="ml-auto" size="md" variant="primary" @click="closeModal(close)">
+                            Cerrar
                         </b-button>
                         
                     </div>
@@ -241,11 +147,12 @@ import {
     getCropsByUser,
     updateCrop
 } from '@/helpers/API.js';
+import VideoPlayer from "@/components/VideoPlayer.vue";
 
 export default {
     name:"Usuarios",
     components: {
-
+        VideoPlayer
     },
     data() {
         return {
@@ -258,6 +165,7 @@ export default {
                 { key:'duration',label:'Duración (HH:mm:ss)',sortable:true},
                 { key:'created_atFormat',label:'Fecha de creación',sortable:true},
                 { key:'output',label:'Archivo',sortable:true},
+                { key:'share',label:'Compartir',sortable:true},
                 { key:'active',label:'Activo',sortable:true},
             ],
             perPage: 15,
@@ -270,7 +178,16 @@ export default {
             newPassword: false,
             loading:false,
             currentId:null,
-            currentField:null
+            currentField:null,
+            videoOptions: {
+                // videojs and plugin options
+                height: '1080',
+                controlBar: {
+                    timeDivider: true,
+                    durationDisplay: true
+                }
+            },
+            currentUrl: null
         }
     },
     methods: {
@@ -326,12 +243,21 @@ export default {
             that.loading = true;
             that.currentId = id;
             that.currentField = field;
+            that.editingIndex = that.items.findIndex((item)=>{
+                return item._id == id;
+            });
+            console.log(that.editingIndex);
             let newValues = {};
             newValues[field] = value;
-            await updateCrop(id,newValues);
-            setTimeout(()=>{
-                that.loading = false;
-            },500);
+            updateCrop(id,newValues)
+                .then((result)=>{
+                    if(field=='share'&&value==true) that.items[that.editingIndex].share_link.permalink = result.data.share_link.permalink;
+                    setTimeout(()=>{
+                        that.loading = false;
+                    },500);
+                }).catch((err)=>{
+                    console.log(err);
+                })
         },
         onFiltered(filteredItems) {
             // Trigger pagination to update the number of buttons/pages due to filtering
@@ -347,6 +273,16 @@ export default {
             that.tempUser = JSON.parse(JSON.stringify(that.items[that.editingIndex]));
             that.items[that.editingIndex].password = "";
             that.$bvModal.show("editing");
+        },
+        playVideo(index) {
+            let that = this;
+            that.currentId = index;
+            that.editingIndex = that.items.findIndex((item)=>{
+                return item._id == index;
+            });
+            that.currentUrl = 'http://'+that.items[that.editingIndex].signal.ipServer+':7900/crop/'+encodeURIComponent(that.items[that.editingIndex].author.email)+'/'+encodeURIComponent(that.items[that.editingIndex].fileid)
+            that.$bvModal.show("player");
+
         },
         newUser() {
             let that = this;
@@ -418,6 +354,7 @@ export default {
                         else item.output = null;
                         item.finished = link.data.finished;
                         item.processing = link.data.processing;
+                        item.fileid = link.data._id;
                         await updateCrop(item._id,item);
                     }
                     if(item.timestampStart) {
@@ -439,6 +376,32 @@ export default {
                     return item;
                 })
             )
+        },
+        copyLink(element) {
+            let that = this;
+            const body = document.querySelector('body');
+            const area = document.createElement('textarea');
+            body.appendChild(area);
+            
+            let editingIndex = that.items.findIndex((item)=>{
+                return item._id == element._id;
+            });
+
+            that.$set(that.items[editingIndex], 'copying', 'loading')
+            setTimeout(()=>{
+                that.$set(that.items[editingIndex], 'copying', 'done')
+                setTimeout(()=>{
+                    that.$set(that.items[editingIndex], 'copying', 'idle')
+                },1000)
+            },1000)
+
+            console.log("editingindex:",editingIndex)
+
+            area.value = element.share_link.permalink;
+            area.select();
+            document.execCommand('copy');
+
+            body.removeChild(area);
         }
     },
     mounted() {
@@ -560,5 +523,25 @@ export default {
         padding: 15px;
         border-radius: 15px;
     }
+}
+.clipboard
+{
+    background: linear-gradient(90deg, rgba(#F86423,1) 0%, rgba(#F86423,1) 47%, rgba(255,255,255,1) 47%, rgba(255,255,255,1) 100%);
+    background-repeat: no-repeat;
+    background-size: 300% 200%;
+    background-position-x: 100%;
+    transition: 900ms all ease-in-out;
+
+    &.loading
+    {
+        background-position-x: 0%;
+        color: white;
+    }
+}
+
+.video-js {
+    width: 100% !important;
+    height: 100% !important;
+    min-height: 70vh !important;
 }
 </style>
