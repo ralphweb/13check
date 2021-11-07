@@ -13,21 +13,64 @@
           </a>
         </div>
 
-        <!-- Login Form -->
-        <input type="text" id="login" class="fadeIn second" name="login" v-model="email" placeholder="Correo electrónico">
-        <input type="password" id="password" class="fadeIn third" name="login" v-model="password" placeholder="Contraseña">
-        <input type="button" class="fadeIn fourth" value="Entrar" @click="login">
-
-        <div class="hr fadeIn fifth"><span>ó</span></div>
-
-        <a href="/auth/google" class="btn btn-google fadeIn sixth"><img src="/img/icons/google.png">Ingresa con Google</a>
-   
-
-        <!-- Remind Passowrd -->
-        <div id="formFooter">
-          <a class="underlineHover" href="/forgot">¿Olvidaste tu contraseña?</a>
+        <div class="fadeIn second text-light" v-if="errorapi">
+          <h3>El link no es válido o ha expirado</h3>
+          <a class="btn btn-primary scene fadeIn fourth text-center mx-auto w-75 d-flex align-items-center justify-content-center" href="/forgot">
+            Recuperar contraseña
+          </a>
         </div>
 
+        <!-- Login Form -->
+        <b-form-group class="fadeIn second w-100 mb-0" id="example-input-group-6" label-for="example-input-6" v-if="!errorapi">
+            <b-form-input
+            id="example-input-6"
+            class="py-4"
+            name="example-input-6"
+            ref="example-input-6"
+            placeholder="Ingrese nueva contraseña..."
+            v-model="password"
+            v-validate="{ required: true }"
+            :state="validateState('example-input-6')"
+            aria-describedby="input-6-live-feedback"
+            data-vv-as="Contraseña"
+            ></b-form-input>
+
+            <b-form-invalid-feedback id="input-6-live-feedback">{{ veeErrors.first('example-input-6') }}</b-form-invalid-feedback>
+        </b-form-group>
+
+        <b-form-group class="fadeIn second w-100 mb-0" id="example-input-group-7" label-for="example-input-7" v-if="!errorapi">
+            <b-form-input
+            id="example-input-7"
+            class="py-4"
+            name="example-input-7"
+            placeholder="Ingrese nueva contraseña..."
+            v-model="tempPassword"
+            v-validate="{ required: true, confirmed: 'example-input-6' }"
+            :state="validateState('example-input-7')"
+            aria-describedby="input-7-live-feedback"
+            data-vv-as="Contraseña"
+            ></b-form-input>
+
+            <b-form-invalid-feedback id="input-7-live-feedback">{{ veeErrors.first('example-input-7') }}</b-form-invalid-feedback>
+        </b-form-group>
+        <button v-bind:class="{'scene fadeIn fourth text-center px-0':true,'disabled':sending||sent}" @click="sendPassword" v-if="!errorapi">
+          <div v-bind:class="{'card':true,'sent':sent,'sending':sending}">
+            <div class="card__face card__face--front">
+              <div v-if="!sending" class="d-flex align-items-center justify-content-center">
+                Modificar contraseña
+              </div>
+              <div v-if="sending" class="d-flex align-items-center justify-content-center">
+                <i class="fas fa-circle-notch fa-spin fa-2x mr-2"></i> <span>Modificando</span>
+              </div>
+            </div>
+            <div class="card__face card__face--back">
+              <div v-if="sent" class="d-flex align-items-center justify-content-center">
+                <i class="fa fa-check-circle fa-2x mr-2"></i> <span>Contraseña modificada</span>
+              </div>
+            </div>
+          </div>
+        </button>
+   
       </div>
     </div>
   </div>
@@ -36,7 +79,10 @@
 <script>
 import store from "@/store";
 import Loader from '@/components/Loader.vue';
-import { login } from '@/helpers/API.js';
+import { 
+  validateToken,
+  modifyPassword
+} from '@/helpers/API.js';
 
 export default {
   name: 'Login',
@@ -45,29 +91,64 @@ export default {
   },
   data() {
     return {
-      email:"",
-      password:""
+      tempPassword: "",
+      newPassword: false,
+      password:"",
+      errorapi:false,
+      sending:false,
+      sent:false,
+      error: null
     }
   },
+  created() {
+    var that = this;
+    validateToken(that.$route.params.token)
+      .then((result)=>{
+        console.log("token result");
+        console.log(result);
+      }).catch((err)=>{
+        console.log("token err");
+        console.log(err);
+        that.errorapi = true;
+      })
+  },
   methods: {
-    forgotPass() {
-      alert("En construcción");
+    validateState(ref) {
+        if (
+            this.veeFields[ref] &&
+            (this.veeFields[ref].dirty || this.veeFields[ref].validated)
+        ) {
+            return !this.veeErrors.has(ref);
+        }
+        return null;
     },
-    login() {
-      var that = this;
-      login(that.email,that.password)
-        .then((result)=>{
-          console.log(result);
-          this.$session.start();
-          this.$session.set('jwt', result.data.token);
-          this.$session.set('user', result.data.user);
-          window.location = '/comparador';
-          store.commit('SET_IS_LOADING', false);
-        }).catch((err)=>{
-          console.log(err);
-          alert("Email y/o Contraseña incorrecto(s)");
-          store.commit('SET_IS_LOADING', false);
-        })
+    sendPassword() {
+      let that = this;
+      that.$validator.validateAll().then(async response => {
+        if (!response) {
+            return;
+        }
+
+        that.sending = true;
+        modifyPassword(that.$route.params.token,that.password)
+          .then((result)=>{
+            if(result&&result.data.hasOwnProperty("msg")) {
+              that.error = result.data;
+              that.sent = false;
+            } else {
+              that.sent = true;
+            }
+            setTimeout(()=>{
+              that.sending = false;
+              that.error = null;
+            },2000)
+          }).catch((err)=>{
+            setTimeout(()=>{
+              that.sending = false;
+              that.error = null;
+            },2000)
+          })
+      })
     }
   }
 }
@@ -162,7 +243,7 @@ $amaranth-red: #F86423;
     background: #000;
     padding: 30px;
     width: 100%;
-    max-width: 450px;
+    max-width: 650px;
     position: relative;
     padding: 0px;
     -webkit-box-shadow: 0 30px 60px 0 rgba(0,0,0,0.3);
@@ -178,7 +259,7 @@ $amaranth-red: #F86423;
     -webkit-border-radius: 0 0 10px 10px;
     border-radius: 0 0 10px 10px;
     width: 100%;
-    max-width: 450px;
+    max-width: 650px;
     box-sizing: border-box;
   }
 
@@ -235,7 +316,7 @@ $amaranth-red: #F86423;
     }
   }
 
-  input[type=button], input[type=submit], input[type=reset]  {
+  a.btn, button, input[type=submit], input[type=reset]  {
     background-color: $imperial-red;
     width: 50%;
     border: none;
@@ -258,11 +339,11 @@ $amaranth-red: #F86423;
     transition: all 0.3s ease-in-out;
   }
 
-  input[type=button]:hover, input[type=submit]:hover, input[type=reset]:hover  {
+  a.btn, button:hover, input[type=submit]:hover, input[type=reset]:hover  {
     background-color: $amaranth-red;
   }
 
-  input[type=button]:active, input[type=submit]:active, input[type=reset]:active  {
+  a.btn, button:active, input[type=submit]:active, input[type=reset]:active  {
     -moz-transform: scale(0.95);
     -webkit-transform: scale(0.95);
     -o-transform: scale(0.95);
@@ -303,5 +384,45 @@ $amaranth-red: #F86423;
   input[type=text]:placeholder {
     color: #cccccc;
   }
+}
+
+.scene {
+  padding: 0px !important;
+  perspective: 600px;
+  min-height: 60px;
+  overflow: hidden;
+}
+
+.card {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  transition: transform 1s;
+  transform-style: preserve-3d;
+  border: none;
+  background: transparent;
+}
+
+.card__face {
+  position: absolute;
+  height: 100%;
+  width: 100%;
+  backface-visibility: hidden;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.card__face--front {
+  background: transparent;
+}
+
+.card__face--back {
+  background: green;
+  transform: rotateX( 180deg );
+}
+
+.card.sending {
+  transform: rotateX(180deg);
 }
 </style>

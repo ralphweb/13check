@@ -20,6 +20,20 @@ var routes = [
     }
   },
   {
+    path: '/forgot',
+    name: 'Forgot',
+    component: function () {
+      return import('../views/Forgot.vue')
+    }
+  },
+  {
+    path: '/recover/:token',
+    name: 'Recover',
+    component: function () {
+      return import('../views/Recover.vue')
+    }
+  },
+  {
     path: '/logout',
     name: 'Logout',
     component: function () {
@@ -99,7 +113,7 @@ const router = new VueRouter({
   
 router.beforeEach((to, from, next) => {
   store.commit('SET_SHOW_MENU', false);
-  if (!Vue.prototype.$session.exists()&&to.path!='/login') {
+  if (!Vue.prototype.$session.exists()&&to.path!='/login'&&to.path!='/forgot'&&to.path.indexOf('/recover/')==-1) {
     router.push({name:'Login'})
   }
   

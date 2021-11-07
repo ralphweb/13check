@@ -265,6 +265,19 @@ const updateCrop = (id,crop) => {
   return api.put("/crop/"+id,crop);
 };
 
+/* EMAIL */
+const sendEmail = (email) => {
+  return api.post("/email",email);
+};
+
+const validateToken = (token) => {
+  return api.get("/email/"+token);
+};
+
+const modifyPassword = (token,password) => {
+  return api.put("/email/"+token,{password:password});
+};
+
 export {
   login,
   logout,
@@ -319,5 +332,8 @@ export {
   sendCrop,
   getCrops,
   getCropsByUser,
-  updateCrop
+  updateCrop,
+  sendEmail,
+  validateToken,
+  modifyPassword
 };
