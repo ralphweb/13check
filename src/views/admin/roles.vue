@@ -57,6 +57,11 @@
                     
                 </b-form-checkbox>
             </template>
+            <template #cell(allclips)="data">
+                <b-form-checkbox v-model="selectedViews.allclips[data.index]" @change="toggleSelectedViews('allclips',data.index)">
+                    
+                </b-form-checkbox>
+            </template>
             <template #cell(signals)="data">
                 <b-form-checkbox v-model="selectedViews.signals[data.index]" @change="toggleSelectedViews('signals',data.index)">
                     
@@ -378,6 +383,33 @@ export default {
 
 .table > :not(caption) > * > * {
     vertical-align: middle;
+}
+
+table thead tr th:first-child, 
+table tbody td:first-child
+{
+  position: sticky;
+  left: 0;
+  z-index: 9;
+}
+
+table tbody tr.new-row td:first-child,
+table tbody tr.new-row td:last-child
+{
+  background-color: rgba(40, 20, 0, 1) !important;
+}
+
+table thead tr th:last-child, 
+table tbody td:last-child 
+{
+  position: sticky;
+  right: 0;
+  z-index: 9;
+}
+
+table
+{
+  padding-right: 20px;
 }
 
 tr 

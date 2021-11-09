@@ -76,6 +76,13 @@ var routes = [
     }
   },
   {
+    path: '/allclips',
+    name: 'Todos los clips',
+    component: function () {
+      return import('../views/clips.vue')
+    }
+  },
+  {
     path: '/admin/signals',
     name: 'AdminSeñales',
     component: function () {

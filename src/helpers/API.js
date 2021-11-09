@@ -261,6 +261,14 @@ const getCropsByUser = (user) => {
   return api.get("/crop/user/"+user);
 }
 
+const getAllCrops = () => {
+  return api.get("/crop");
+}
+
+const deleteCrop = (id) => {
+  return api.delete("/crop/"+id,{});
+};
+
 const updateCrop = (id,crop) => {
   return api.put("/crop/"+id,crop);
 };
@@ -332,6 +340,8 @@ export {
   sendCrop,
   getCrops,
   getCropsByUser,
+  getAllCrops,
+  deleteCrop,
   updateCrop,
   sendEmail,
   validateToken,

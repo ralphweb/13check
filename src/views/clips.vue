@@ -1,6 +1,7 @@
 <template>
     <div class="admin p-4">
-        <h2 v-bind:class="{'text-light':true}">Mis clips</h2>
+        <h2 v-bind:class="{'text-light':true}" v-if="!isAdmin">Mis clips</h2>
+        <h2 v-bind:class="{'text-light':true}" v-if="isAdmin">Todos los clips</h2>
         <b-row>
             <b-col lg="6" v-bind:class="{'my-3':true}">
             </b-col>
@@ -32,11 +33,14 @@
         <b-table striped dark hover :filter="filter" :items="items" :fields="fields" :tbody-tr-class="rowClass" :per-page="perPage" :current-page="currentPage" @filtered="onFiltered">
             <template #cell(actions)="row">
                 <div class="d-flex justify-content-evenly" v-if="row.item.hasOwnProperty('_id')">
-                    <b-button class="btn-danger disabled" @click="editUser(row.item._id)"><i class="fa fa-2x fa-trash"></i></b-button>
+                    <b-button class="btn-danger" @click="deleteCrop(row.item._id)"><i class="fa fa-2x fa-trash"></i></b-button>
                 </div>
             </template>
             <template #cell(signal)="row">
                 <div class="signal-logo mx-auto" :style="'background-image:url(http://localhost:4100'+row.item.signal.logo+');'"></div>
+            </template>
+            <template #cell(author_formatted)="row">
+                <div v-html="row.item.author_formatted" class="date"></div>
             </template>
             <template #cell(timestampStartFormat)="row">
                 <div v-html="row.item.timestampStartFormat" class="date"></div>
@@ -145,7 +149,9 @@ import moment from 'moment';
 import axios from 'axios';
 import {
     getCropsByUser,
-    updateCrop
+    getAllCrops,
+    updateCrop,
+    deleteCrop
 } from '@/helpers/API.js';
 import VideoPlayer from "@/components/VideoPlayer.vue";
 
@@ -187,7 +193,8 @@ export default {
                     durationDisplay: true
                 }
             },
-            currentUrl: null
+            currentUrl: null,
+            isAdmin: false
         }
     },
     methods: {
@@ -264,15 +271,20 @@ export default {
             this.totalRows = filteredItems.length
             this.currentPage = 1
         },
-        editUser(index) {
+        async deleteCrop(index) {
             let that = this;
-            that.currentId = index;
             that.editingIndex = that.items.findIndex((item)=>{
                 return item._id == index;
             });
-            that.tempUser = JSON.parse(JSON.stringify(that.items[that.editingIndex]));
-            that.items[that.editingIndex].password = "";
-            that.$bvModal.show("editing");
+            setTimeout(async()=>{
+                let r = confirm("¿Está seguro que desea eliminar el clip?");
+                if(r) {
+                    let response = await deleteCrop(that.items[that.editingIndex]._id);
+                    that.items.splice(that.editingIndex,1);
+                    that.editingIndex = null;
+                    that.filter = "";
+                }
+            },1);
         },
         playVideo(index) {
             let that = this;
@@ -357,6 +369,9 @@ export default {
                         item.fileid = link.data._id;
                         await updateCrop(item._id,item);
                     }
+                    if(that.isAdmin&&item.author) {
+                        item.author_formatted = "<p>"+item.author.name+" "+item.author.lastName+"</p><span>"+item.author.email+"</span>"
+                    }
                     if(item.timestampStart) {
                         item.timeStart = moment(item.timestampStart,'YYYY-MM-DD_HH-mm-ss');
                         item.timestampStartFormat = item.timeStart.format('[<p>]DD-MM-YYYY[<p/><span>]HH:mm:ss[</span>]');
@@ -406,13 +421,31 @@ export default {
     },
     mounted() {
         var that = this;
-        getCropsByUser(that.user._id)
-            .then(async (result)=>{
-                that.items = await that.processCrops(result.data);
-                that.totalRows = that.items.length;
-            }).catch((e)=>{
-                console.log(e);
-            })
+        if(!that.isAdmin) {
+            getCropsByUser(that.user._id)
+                .then(async (result)=>{
+                    that.items = await that.processCrops(result.data);
+                    that.totalRows = that.items.length;
+                }).catch((e)=>{
+                    console.log(e);
+                })
+        } else {
+            that.fields.splice(1,0,{ key:'author_formatted',label:'Usuario',sortable:true})
+            getAllCrops()
+                .then(async (result)=>{
+                    console.log(result);
+                    that.items = await that.processCrops(result.data);
+                    that.totalRows = that.items.length;
+                }).catch((e)=>{
+                    console.log(e);
+                })
+        }
+    },
+    created() {
+        var that = this;
+        if(that.$route.path=='/allclips') {
+            that.isAdmin = true;
+        }
     },
     computed: {
         user: {
