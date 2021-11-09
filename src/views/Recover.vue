@@ -23,13 +23,14 @@
         <!-- Login Form -->
         <b-form-group class="fadeIn second w-100 mb-0" id="example-input-group-6" label-for="example-input-6" v-if="!errorapi">
             <b-form-input
+            type="password"
             id="example-input-6"
             class="py-4"
             name="example-input-6"
             ref="example-input-6"
             placeholder="Ingrese nueva contraseña..."
             v-model="password"
-            v-validate="{ required: true }"
+            v-validate="{ required: true, min: 6 }"
             :state="validateState('example-input-6')"
             aria-describedby="input-6-live-feedback"
             data-vv-as="Contraseña"
@@ -40,6 +41,7 @@
 
         <b-form-group class="fadeIn second w-100 mb-0" id="example-input-group-7" label-for="example-input-7" v-if="!errorapi">
             <b-form-input
+            type="password"
             id="example-input-7"
             class="py-4"
             name="example-input-7"
