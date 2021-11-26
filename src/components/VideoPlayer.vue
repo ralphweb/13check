@@ -87,7 +87,7 @@ export default {
                         that.loading = true;
                         that.localTime = that.time;
                         axios
-                            .get('http://'+that.ip+':7900/video/'+query.format('YYYY-MM-DD[_]HH-mm-ss'))
+                            .get('https://13checkqa.ingenieriac13.cl/vod/video/'+that.ip+'/'+query.format('YYYY-MM-DD[_]HH-mm-ss'))
                             .then((response) => {
                                 that.loading = false;
                                 console.log(response);
@@ -106,7 +106,7 @@ export default {
                     that.player.src({
                         withCredentials: false,
                         type: "application/x-mpegURL",
-                        src: "http://"+that.ip+":8000/hls_1080p/stream/index.m3u8"
+                        src: "https://13checkqa.ingenieriac13.cl/stream/"+that.ip+"/index.m3u8"
                     });
                 }
             }
@@ -152,7 +152,7 @@ export default {
                         that.player.src({
                             withCredentials: false,
                             type: "application/x-mpegURL",
-                            src: "http://"+that.ip+":8000/hls_1080p/stream/index.m3u8"
+                            src: "https://13checkqa.ingenieriac13.cl/stream/"+that.ip+"/index.m3u8"
                         });
                     }
                 }
@@ -172,7 +172,7 @@ export default {
                 if(newFile&&that.player!=null) {
                     that.player.src({
                         type: "video/mp4",
-                        src: "http://"+that.ip+":7900/getvideo/"+encodeURIComponent(newFile)
+                        src: "https://13checkqa.ingenieriac13.cl/vod/getvideo/"+that.ip+"/"+encodeURIComponent(newFile)
                     });
                     that.player.on('loadedmetadata', function(){
                         this.currentTime(that.diff);

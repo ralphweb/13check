@@ -12,12 +12,12 @@ const apiWithoutLoader = createWithoutLoader({
 
 /* LOGIN */
 const login = (email,password) => {
-  return api.post("/auth/login",{email:email,password:password,dashboard:true});
+  return api.post("/user/login",{email:email,password:password,dashboard:true});
 };
 
 /* LOGOUT */
 const logout = (email) => {
-  return api.put("/auth/logout/",{email:email});
+  return api.put("/user/logout/",{email:email});
 };
 
 /* VIEWS */
