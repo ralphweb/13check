@@ -175,6 +175,7 @@
                     <small class="d-block text-right w-100">Sólo rellenar si desea modificar contraseña</small>
                     <b-form-group id="example-input-group-6" label="Contraseña:" label-for="example-input-6">
                         <b-form-input
+                        type="password"
                         id="example-input-6"
                         name="example-input-6"
                         ref="example-input-6"
@@ -192,6 +193,7 @@
 
                     <b-form-group id="example-input-group-7" label="Confirmar contraseña:" label-for="example-input-7">
                         <b-form-input
+                        type="password"
                         id="example-input-7"
                         name="example-input-7"
                         placeholder="Ingrese nueva contraseña..."

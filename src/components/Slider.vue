@@ -350,7 +350,6 @@ export default {
     },
     exportCrop() {
       let that = this;
-      alert(that.currentSignal.name);
       var body = {
           "author_id": that.user._id,
           "author":that.user.email,
