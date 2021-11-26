@@ -236,7 +236,7 @@ const sendCrop = (parameters) => {
   api.post('/crop',crop)
     .then((response)=>{
       let captureAPI = create({
-        baseURL: 'http://'+parameters.ipServer+':7900'
+        baseURL: 'https://13checkqa.ingenieriac13.cl/crop/'+parameters.ipServer
       })
       delete parameters.author_id;
       delete parameters.signal;

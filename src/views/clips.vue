@@ -37,7 +37,7 @@
                 </div>
             </template>
             <template #cell(signal)="row">
-                <div class="signal-logo mx-auto" :style="'background-image:url(http://localhost:4100'+row.item.signal.logo+');'"></div>
+                <div class="signal-logo mx-auto" :style="'background-image:url(https://13checkapi.ingenieriac13.cl/'+row.item.signal.logo+');'"></div>
             </template>
             <template #cell(author_formatted)="row">
                 <div v-html="row.item.author_formatted" class="date"></div>
@@ -57,7 +57,7 @@
             <template #cell(output)="row">
                 <!--a class="btn btn-primary" :href="'http://'+row.item.signal.ipServer+':7900/crop/'+encodeURIComponent(row.item.author.email)+'/'+encodeURIComponent(row.item.fileid)" v-if="row.item.output"><i class="fa fa-2x fa-play"></i></a-->
                 <b-button class="btn-primary" @click="playVideo(row.item._id)" v-if="row.item.output"><i class="fa fa-2x fa-play"></i></b-button>
-                <a class="btn btn-success ml-2" :href="'http://'+row.item.signal.ipServer+':7900/crop/'+encodeURIComponent(row.item.author.email)+'/'+encodeURIComponent(row.item.fileid)+'/download'" v-if="row.item.output"><i class="fa fa-2x fa-download"></i></a>
+                <a class="btn btn-success ml-2" :href="'https://13checkqa.ingenieriac13.cl/crop/'+row.item.signal.ipServer+'/getcrop/'+encodeURIComponent(row.item.author.email)+'/'+encodeURIComponent(row.item.fileid)+'/download'" v-if="row.item.output"><i class="fa fa-2x fa-download"></i></a>
             </template>
             <template #cell(active)="row">
                 <toggle-button v-model="row.item.active"
@@ -292,7 +292,7 @@ export default {
             that.editingIndex = that.items.findIndex((item)=>{
                 return item._id == index;
             });
-            that.currentUrl = 'http://'+that.items[that.editingIndex].signal.ipServer+':7900/crop/'+encodeURIComponent(that.items[that.editingIndex].author.email)+'/'+encodeURIComponent(that.items[that.editingIndex].fileid)
+            that.currentUrl = 'https://13checkqa.ingenieriac13.cl/crop/'+that.items[that.editingIndex].signal.ipServer+'/getcrop/'+encodeURIComponent(that.items[that.editingIndex].author.email)+'/'+encodeURIComponent(that.items[that.editingIndex].fileid)
             that.$bvModal.show("player");
 
         },
@@ -361,7 +361,7 @@ export default {
             return await Promise.all(
                 data.map(async (item) => {
                     if(!item.output) {
-                        let link = await axios.get("http://"+item.signal.ipServer+":7900/cropfind/"+item.author.email+"/"+item.timestampStart+"/"+item.timestampEnd);
+                        let link = await axios.get("https://13checkqa.ingenieriac13.cl/crop/"+item.signal.ipServer+"/cropfind/"+item.author.email+"/"+item.timestampStart+"/"+item.timestampEnd);
                         if(link.data.finished&&!link.data.processing) item.output = link.data.output;
                         else item.output = null;
                         item.finished = link.data.finished;
