@@ -15,6 +15,10 @@ const login = (email,password) => {
   return api.post("/user/login",{email:email,password:password,dashboard:true});
 };
 
+const loginGoogle = (email) => {
+  return api.post("/user/logingoogle",{email:email});
+};
+
 /* LOGOUT */
 const logout = (email) => {
   return api.put("/user/logout/",{email:email});
@@ -288,6 +292,7 @@ const modifyPassword = (token,password) => {
 
 export {
   login,
+  loginGoogle,
   logout,
   getViews,
   getRoles,

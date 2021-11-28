@@ -16,6 +16,11 @@ import VueVideoPlayer from 'vue-video-player'
 // require videojs style
 import 'video.js/dist/video-js.css'
 import 'vue-video-player/src/custom-theme.css'
+import { LoaderPlugin } from 'vue-google-login';
+
+Vue.use(LoaderPlugin, {
+  client_id: "177898246150-fv67agbfpe1t4qeq3hfmtmeds180g75s.apps.googleusercontent.com"
+});
 
 Vue.use(VueVideoPlayer)
 

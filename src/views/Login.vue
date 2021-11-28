@@ -20,7 +20,8 @@
 
         <div class="hr fadeIn fifth"><span>ó</span></div>
 
-        <a href="/auth/google" class="btn btn-google fadeIn sixth"><img src="/img/icons/google.png">Ingresa con Google</a>
+        <!--a href="/auth/google" class="btn btn-google fadeIn sixth"><img src="/img/icons/google.png">Ingresa con Google</a-->
+        <GoogleLogin :params="params" class="fadeIn sixth mb-4" :renderParams="renderParams" :onSuccess="onSuccess" :onFailure="onFailure"></GoogleLogin>
    
 
         <!-- Remind Passowrd -->
@@ -36,38 +37,98 @@
 <script>
 import store from "@/store";
 import Loader from '@/components/Loader.vue';
-import { login } from '@/helpers/API.js';
+import { login, loginGoogle, getViews, getRole } from '@/helpers/API.js';
+import GoogleLogin from 'vue-google-login';
 
 export default {
   name: 'Login',
   components: {
-    Loader
+    Loader,
+    GoogleLogin
   },
   data() {
     return {
       email:"",
-      password:""
+      password:"",
+      params: {
+          client_id: "177898246150-fv67agbfpe1t4qeq3hfmtmeds180g75s.apps.googleusercontent.com"
+      },
+      // only needed if you want to render the button with the google ui
+      renderParams: {
+          width: 250,
+          height: 50,
+          longtitle: true
+      }
     }
   },
   methods: {
-    forgotPass() {
-      alert("En construcción");
+    onSuccess(googleUser) {
+        var that = this;
+        let gUser = googleUser.getBasicProfile();
+        loginGoogle(gUser.getEmail())
+          .then(async(result)=>{
+            console.log(result);
+            this.$session.start();
+            this.$session.set('jwt', result.data.token);
+            this.$session.set('user', result.data.user);
+            let user = result.data.user;
+            let role = await getRole(user.role);
+            getViews()
+              .then((response)=>{
+                that.views = response.data.filter((view)=>{
+                  return role.data[0].views.indexOf(view._id)!=-1;
+                });
+                window.location = that.views[0].path;
+                store.commit('SET_IS_LOADING', false);
+              }).catch((err)=>{
+                console.log(err);
+                alert("Error");
+                store.commit('SET_IS_LOADING', false);
+              })
+          }).catch((err)=>{
+            console.log(err);
+            alert("Usuario no autorizado.");
+            store.commit('SET_IS_LOADING', false);
+          })
+    },
+    onFailure(error) {
+        console.log(error);
+        alert("Usuario no autorizado.");
     },
     login() {
       var that = this;
       login(that.email,that.password)
-        .then((result)=>{
-          console.log(result);
+        .then(async(result)=>{
           this.$session.start();
           this.$session.set('jwt', result.data.token);
           this.$session.set('user', result.data.user);
-          window.location = '/comparador';
-          store.commit('SET_IS_LOADING', false);
+          let user = result.data.user;
+          let role = await getRole(user.role);
+          getViews()
+            .then((response)=>{
+              that.views = response.data.filter((view)=>{
+                return role.data[0].views.indexOf(view._id)!=-1;
+              });
+              window.location = that.views[0].path;
+              store.commit('SET_IS_LOADING', false);
+            }).catch((e)=>{
+              console.log(e);
+            })
         }).catch((err)=>{
           console.log(err);
           alert("Email y/o Contraseña incorrecto(s)");
           store.commit('SET_IS_LOADING', false);
         })
+    }
+  },
+  computed: {
+    views: {
+        get() {
+            return this.$store.state.views;
+        },
+        set(value) {
+            this.$store.commit('SET_VIEWS', value);
+        }
     }
   }
 }
