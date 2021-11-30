@@ -209,7 +209,7 @@ export default {
             currentField:null,
             dropzoneOptions: {
                 autoProcessQueue: false,
-                url: 'http://localhost:4100/api/signal/upload/',
+                url: 'https://13checkapi.ingenieriac13.cl/api/signal/upload/',
                 withCredentials: false,
                 method: "POST",
                 headers: {
