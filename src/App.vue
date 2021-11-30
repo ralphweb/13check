@@ -198,6 +198,8 @@ body
     {
       display: flex;
       align-items: center;
+      overflow-y: auto;
+      max-width: 78vw;
 
       small
       {
@@ -590,6 +592,7 @@ thead, tbody, tfoot, tr, td, th {
   overflow-y: auto;
   width: 100vw;
   height: calc(100vh - 70px);
+  max-height: 88vh;
   transition: all 500ms ease-in-out;
 
   &.show
