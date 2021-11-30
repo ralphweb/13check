@@ -55,9 +55,13 @@ export default {
   },
   mounted() {
     var that = this;
+    try {
     setTimeout(()=>{
       that.currentId = that.currentSignals[that.index]._id;
     }, 750);
+    } catch(err) {
+      console.log("Signal error:",err);
+    }
   },
   computed: {
     isCurrent: {
