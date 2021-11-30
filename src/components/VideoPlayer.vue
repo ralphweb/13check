@@ -1,6 +1,6 @@
 <template>
     <div>
-        <video playsinline ref="videoPlayer" class="video-js" :muted="muted" autoplay="false" :controls="controls"></video>
+        <video playsinline ref="videoPlayer" class="video-js" :muted="muted" autoplay="false" :controls="controls" allowfullscreen="true" webkitallowfullscreen="true" mozallowfullscreen="true"></video>
     </div>
 </template>
 
