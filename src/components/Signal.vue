@@ -142,44 +142,6 @@ export default {
   flex-direction: column;
   position: relative;
 
-  @media only screen and (hover: none) and (pointer: coarse) and (orientation:landscape) {
-    display: grid;
-    grid-template-rows: minmax(min-content, max-content);
-    padding: 0px;
-    overflow-y: auto;
-
-    &.left
-    {
-      grid-template-columns: 1fr;
-      height: 100vh;
-    }
-
-    &.right
-    {
-      grid-template-columns: 1fr 12%;
-      grid-template-areas: "player head";
-    }
-  }
-
-  @media only screen and (hover: none) and (pointer: coarse) and (orientation:portrait) {
-    display: grid;
-    grid-template-rows: minmax(min-content, max-content);
-    padding: 0px;
-    overflow-y: auto;
-
-    &.left
-    {
-      grid-template-columns: 12% 1fr;
-      grid-template-areas: "head player";
-    }
-
-    &.right
-    {
-      grid-template-columns: 1fr 12%;
-      grid-template-areas: "player head";
-    }
-  }
-
   &.current
   {
     border: 1px solid red;
@@ -195,16 +157,6 @@ export default {
     grid-template-columns: 34% 33% 33%;
     background: #050505;
     z-index: 9;
-
-    @media only screen and (hover: none) and (pointer: coarse) {
-      min-height: 30px;
-      max-height: unset;
-      height: 100%;
-      flex: 0 0 12%;
-      overflow: hidden;      
-      grid-template-columns: 1fr;
-      grid-template-rows: 34% 33% 33%;
-    }
 
     &-logo
     {

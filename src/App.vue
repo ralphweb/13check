@@ -56,6 +56,8 @@ export default {
           console.log(e);
         })
     }
+
+    that.isMobile = (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent));
   },
   methods: {
     processSignals(data) {
@@ -100,6 +102,14 @@ export default {
         },
         set(value) {
             this.$store.commit('SET_SIGNALS', value);
+        }
+    },
+    isMobile: {
+        get() {
+            return this.$store.state.isMobile;
+        },
+        set(value) {
+            this.$store.commit('SET_ISMOBILE', value);
         }
     },
   }

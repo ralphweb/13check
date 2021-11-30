@@ -1,6 +1,6 @@
 <template>
 <div v-bind:class="{'container-fluid app transition fadeInDown':true}" ref="container">
-    <multipane layout="vertical" class="w-100">
+    <multipane layout="vertical" class="w-100" v-if="!isMobile">
         <div :style="{ width: '90vw', minWidth: '30vw', maxWidth: '90vw' }" class="fadeIn catalog">
             <signal :ref="'signal'" :index="0" v-bind:key="i" v-for="(signal,i) in [currentSignals[0]]" header="left"/>
         </div>
@@ -9,6 +9,12 @@
             <slider class="w-100" :rating="true" :crop="true"/>
         </div>
     </multipane>
+    <div class="row" v-if="isMobile">
+        <div class="col-12">
+            <signal :ref="'signal'" :index="0" v-bind:key="i" v-for="(signal,i) in [currentSignals[0]]" header="left"/>
+            <slider :rating="true" :crop="true" :mobile="isMobile"/>
+        </div>
+    </div>
 </div>
 </template>
 
@@ -288,7 +294,12 @@ export default {
             set(value) {
                 this.$store.commit('SET_VIEWS', value);
             }
-        }
+        },
+        isMobile: {
+            get() {
+                return this.$store.state.isMobile;
+            }
+        },
     },
     watch: {
       

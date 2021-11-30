@@ -20,7 +20,8 @@ export default new Vuex.Store({
     currentSignalId: null,
     startDate: null,
     endDate: null,
-    showMenu: false
+    showMenu: false,
+    isMobile: false
   },
   mutations: {
     SET_IS_LOADING(state, value) {
@@ -70,6 +71,9 @@ export default new Vuex.Store({
     },
     SET_SHOW_MENU(state, value) {
       state.showMenu = value;
+    },
+    SET_ISMOBILE(state, value) {
+      state.isMobile = value;
     }
   },
   actions: {
