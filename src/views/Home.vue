@@ -1,5 +1,5 @@
 <template>
-<div v-bind:class="{'container-fluid app transition fadeInDown':true}" v-hammer:swipe.up="onSwipeUp" v-hammer:swipe.down="onSwipeDown">
+<div v-bind:class="{'container-fluid app transition fadeInDown':true}">
     <div class="col fadeIn first signals">
       <signal :msg="signal.name" :class="'signal'+signal.idRating" :signal="signal" header="left" v-for="(signal,i) in signalsLeft" v-bind:key="i"/>
     </div>
