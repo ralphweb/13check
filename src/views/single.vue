@@ -1,5 +1,5 @@
 <template>
-<div v-bind:class="{'container-fluid app transition fadeInDown':true}" ref="container">
+<div v-bind:class="{'container-fluid app transition fadeInDown w-100':true}" ref="container">
     <multipane layout="vertical" class="w-100" v-if="!isMobile">
         <div :style="{ width: '90vw', minWidth: '30vw', maxWidth: '90vw' }" class="fadeIn catalog">
             <signal :ref="'signal'" :index="0" v-bind:key="i" v-for="(signal,i) in [currentSignals[0]]" header="left"/>

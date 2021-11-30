@@ -3,7 +3,6 @@ import App from './App.vue'
 import router from './router'
 import store from './store'
 import VueSession from 'vue-session'
-import { VueHammer } from 'vue2-hammer'
 import { BootstrapVue, IconsPlugin } from 'bootstrap-vue';
 import ToggleButton from 'vue-js-toggle-button'
 import es from 'vee-validate/dist/locale/es';
@@ -72,8 +71,6 @@ Vue.use(require('vue-moment'), {
     moment
 })
 Vue.use(VueSession,{persist:true})
-
-Vue.use(VueHammer)
 
 Vue.config.productionTip = false
 
