@@ -1,13 +1,14 @@
-import Vue from 'vue'
-import Vuex from 'vuex'
+import Vue from "vue";
+import Vuex from "vuex";
 
-Vue.use(Vuex)
+Vue.use(Vuex);
 
 export default new Vuex.Store({
   state: {
     loading: false,
     live: true,
     play: true,
+    muted: false,
     availableSignals: [],
     currentSignals: [],
     time: Date.now(),
@@ -21,7 +22,7 @@ export default new Vuex.Store({
     startDate: null,
     endDate: null,
     showMenu: false,
-    isMobile: false
+    isMobile: false,
   },
   mutations: {
     SET_IS_LOADING(state, value) {
@@ -32,6 +33,9 @@ export default new Vuex.Store({
     },
     SET_PLAY(state, value) {
       state.play = value;
+    },
+    SET_MUTED(state, value) {
+      state.muted = value;
     },
     SET_TIME(state, value) {
       state.time = value;
@@ -74,10 +78,8 @@ export default new Vuex.Store({
     },
     SET_ISMOBILE(state, value) {
       state.isMobile = value;
-    }
+    },
   },
-  actions: {
-  },
-  modules: {
-  }
-})
+  actions: {},
+  modules: {},
+});

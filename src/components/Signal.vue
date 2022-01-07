@@ -1,39 +1,75 @@
 <template>
-  <div v-bind:class="['signal',header]" v-if="currentSignals[index]" @click="currentSignalId=currentId">
+  <div
+    v-bind:class="['signal', header]"
+    v-if="currentSignals[index]"
+    @click="currentSignalId = currentId"
+  >
     <div class="signal-header">
       <div class="signal-header-logo d-flex">
-          <div class="signal-header-logo-img d-flex align-items-center justify-content-end" :style="'background-image:url(\''+currentSignals[index].logo+'\');'" @click="toggleAvailable"> <i v-bind:class="{'fa fa-chevron-down text-light':true,'fa-rotate-180':showAvailable}" v-if="availableSignals.length"></i></div>
-          <div v-bind:class="{'signal-header-logo-available d-flex justify-content-start':true,'show':showAvailable}">
-            <div class="signal-header-logo-img d-flex align-items-center justify-content-end" :style="'background-image:url(\''+availableSignal.logo+'\');'" v-for="(availableSignal,av) in availableSignals" v-bind:key="av" @click="replaceSignal(av)"></div>
-          </div>
+        <div
+          class="signal-header-logo-img d-flex align-items-center justify-content-end"
+          :style="
+            'background-image:url(\'' + currentSignals[index].logo + '\');'
+          "
+          @click="toggleAvailable"
+        >
+          <i
+            v-bind:class="{
+              'fa fa-chevron-down text-light': true,
+              'fa-rotate-180': showAvailable,
+            }"
+            v-if="availableSignals.length"
+          ></i>
+        </div>
+        <div
+          v-bind:class="{
+            'signal-header-logo-available d-flex justify-content-start': true,
+            show: showAvailable,
+          }"
+        >
+          <div
+            class="signal-header-logo-img d-flex align-items-center justify-content-end"
+            :style="'background-image:url(\'' + availableSignal.logo + '\');'"
+            v-for="(availableSignal, av) in availableSignals"
+            v-bind:key="av"
+            @click="replaceSignal(av)"
+          ></div>
+        </div>
       </div>
       <div class="signal-header-rating" v-if="user.role.allowRating">
-          <h5>Rating</h5>
-          <h2 :style="'color:'+currentSignals[index].colorBorde">N/A</h2>
+        <h5>Rating</h5>
+        <h2 :style="'color:' + currentSignals[index].colorBorde">N/A</h2>
       </div>
       <div class="signal-header-share" v-if="user.role.allowRating">
-          <h5>Share</h5>
-          <h2 :style="'color:'+currentSignals[index].colorBorde">N/A</h2>
+        <h5>Share</h5>
+        <h2 :style="'color:' + currentSignals[index].colorBorde">N/A</h2>
       </div>
     </div>
-    <div class="signal-player">   
-        <div class="icon-active" v-if="isCurrent">
-          <i class="fa fa-volume-up"></i>
-        </div>
-        <video-player :options="videoOptions" :muted="!isCurrent" :ip="currentSignals[index].ipServer" :time="currentTime" :live="live"/>
+    <div class="signal-player">
+      <div class="icon-active" v-if="isCurrent">
+        <i class="fa fa-volume-up"></i>
+      </div>
+      <video-player
+        :options="videoOptions"
+        :muted="!isCurrent"
+        :globalmuted="muted"
+        :ip="currentSignals[index].ipServer"
+        :time="currentTime"
+        :live="live"
+      />
     </div>
   </div>
 </template>
 
 <script>
-import moment from 'moment';
+import moment from "moment";
 import VideoPlayer from "@/components/VideoPlayer.vue";
-import 'video.js/dist/video-js.css';
+import "video.js/dist/video-js.css";
 
 export default {
-  name: 'signal',
+  name: "signal",
   components: {
-    VideoPlayer
+    VideoPlayer,
   },
   data() {
     return {
@@ -41,76 +77,81 @@ export default {
       showAvailable: false,
       videoOptions: {
         // videojs and plugin options
-          height: '1080',
-          controlBar: {
-            timeDivider: false,
-            durationDisplay: false
-          }
-      }
-    }
+        height: "1080",
+        controlBar: {
+          timeDivider: false,
+          durationDisplay: false,
+        },
+      },
+    };
   },
   props: {
     header: String,
-    index: Number
+    index: Number,
   },
   mounted() {
     var that = this;
     try {
-    setTimeout(()=>{
-      that.currentId = that.currentSignals[that.index]._id;
-    }, 750);
-    } catch(err) {
-      console.log("Signal error:",err);
+      setTimeout(() => {
+        that.currentId = that.currentSignals[that.index]._id;
+      }, 750);
+    } catch (err) {
+      console.log("Signal error:", err);
     }
   },
   computed: {
     isCurrent: {
       get() {
         var that = this;
-        return (that.currentSignalId==that.currentId);
-      }
+        return that.currentSignalId == that.currentId;
+      },
     },
     availableSignals: {
-        get() {
-            return this.$store.state.availableSignals;
-        },
-        set(value) {
-            this.$store.commit('SET_AVAILABLE_SIGNALS', value);
-        }
+      get() {
+        return this.$store.state.availableSignals;
+      },
+      set(value) {
+        this.$store.commit("SET_AVAILABLE_SIGNALS", value);
+      },
     },
     currentSignals: {
-        get() {
-            return this.$store.state.currentSignals;
-        },
-        set(value) {
-            this.$store.commit('SET_CURRENT_SIGNALS', value);
-        }
+      get() {
+        return this.$store.state.currentSignals;
+      },
+      set(value) {
+        this.$store.commit("SET_CURRENT_SIGNALS", value);
+      },
     },
     currentSignalId: {
-        get() {
-            return this.$store.state.currentSignalId;
-        },
-        set(value) {
-            this.$store.commit('SET_CURRENT_SIGNAL_ID', value);
-        }
+      get() {
+        return this.$store.state.currentSignalId;
+      },
+      set(value) {
+        this.$store.commit("SET_CURRENT_SIGNAL_ID", value);
+      },
     },
     currentTime: {
-        get() {
-            return this.$store.state.currentTime;
-        }
+      get() {
+        return this.$store.state.currentTime;
+      },
     },
     user: {
-        get() {
-            return this.$store.state.user;
-        },
-        set(value) {
-            this.$store.commit('SET_USER', value);
-        }
+      get() {
+        return this.$store.state.user;
+      },
+      set(value) {
+        this.$store.commit("SET_USER", value);
+      },
     },
     live: {
-        get() {
-            return this.$store.state.live;
-        }
+      get() {
+        return this.$store.state.live;
+      },
+    },
+    muted: {
+      get() {
+        return this.$store.state.muted;
+      },
     },
   },
   methods: {
@@ -120,7 +161,7 @@ export default {
       let oldSignal = that.currentSignals[that.index];
       that.currentSignals[that.index] = nextSignal;
       that.currentId = nextSignal._id;
-      that.$root.$emit('checkAvailable');
+      that.$root.$emit("checkAvailable");
       that.showAvailable = false;
     },
     toggleAvailable() {
@@ -128,22 +169,20 @@ export default {
       that.showAvailable = !that.showAvailable;
     },
     prettify(ts) {
-        return moment(ts).format('HH:mm:ss.SSS');
+      return moment(ts).format("HH:mm:ss.SSS");
     },
-  }
-}
+  },
+};
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped lang="scss">
-.signal
-{
+.signal {
   display: flex;
   flex-direction: column;
   position: relative;
 
-  &.current
-  {
+  &.current {
     border: 1px solid red;
   }
 
@@ -152,16 +191,14 @@ export default {
     flex: 1 1 100%;
     min-height: 80px;
     max-height: 80px;
-    display:grid;
+    display: grid;
     grid-template-rows: 1fr;
     grid-template-columns: 34% 33% 33%;
     background: #050505;
     z-index: 9;
 
-    &-logo
-    {
-      &-img
-      {
+    &-logo {
+      &-img {
         background-size: 40px;
         background-position: center center;
         background-repeat: no-repeat;
@@ -169,12 +206,11 @@ export default {
         height: 100%;
       }
 
-      &-available
-      {
+      &-available {
         position: absolute;
         width: 100%;
         height: 80px;
-        background-color: rgba(0,0,0,0.8);
+        background-color: rgba(0, 0, 0, 0.8);
         overflow-x: auto;
         flex-wrap: nowrap;
         pointer-events: none;
@@ -183,30 +219,26 @@ export default {
         transition: all 500ms ease-in-out;
         z-index: 8;
 
-        &.show
-        {
+        &.show {
           top: 80px;
           opacity: 1;
           pointer-events: all;
         }
 
-        .signal-header-logo-img
-        {
+        .signal-header-logo-img {
           min-width: 80px;
         }
       }
     }
 
     &-rating,
-    &-share
-    {
+    &-share {
       display: flex;
       flex-direction: column;
       justify-content: center;
       align-items: center;
 
-      h5
-      {
+      h5 {
         margin: 0;
         font-size: 8pt;
         font-weight: 200;
@@ -215,8 +247,7 @@ export default {
         -moz-osx-font-smoothing: grayscale;
       }
 
-      h2
-      {
+      h2 {
         margin: 0;
         font-size: 12pt;
         font-weight: 200;
@@ -228,7 +259,7 @@ export default {
   }
 
   &-player {
-    grid-area:player;
+    grid-area: player;
     flex: 0 0 auto;
     display: grid;
     color: white;
@@ -236,9 +267,7 @@ export default {
     aspect-ratio: 16 / 9;
     position: relative;
 
-
-    .icon-active
-    {
+    .icon-active {
       position: absolute;
       top: 20px;
       left: 20px;
