@@ -7,10 +7,11 @@ const CONFIG = {
   vue_app_hostname:
     process.env.VUE_APP_HOSTNAME || "https://13checkqa.ingenieriac13.cl",
 
-  api_hostname:
-    process.env.VUE_APP_API_HOSTNAME || "https://13checkapi.ingenieriac13.cl",
+  api_hostname: "https://13checkapi.ingenieriac13.cl",
   api_url:
     process.env.VUE_APP_API_URL || "https://13checkapi.ingenieriac13.cl/api/",
+  api_url_local:
+    process.env.VUE_APP_API_URL || "https://13checkqa.ingenieriac13.cl/",
   //api_hostname: process.env.VUE_APP_API_HOSTNAME || "https://lablab-desk-api.simpleux.cl",
   //api_url: process.env.VUE_APP_API_URL || "https://lablab-desk-api.simpleux.cl/api/",
 
@@ -45,6 +46,9 @@ export default {
   },
   get apiUrl() {
     return CONFIG.api_url || `${CONFIG.apiHostname}/api/`;
+  },
+  get apiUrlLocal() {
+    return CONFIG.api_url_local;
   },
   get superToken() {
     return CONFIG.supertoken;
