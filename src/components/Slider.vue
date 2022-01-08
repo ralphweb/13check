@@ -10,37 +10,7 @@
     @keyup.space="play != play"
   >
     <div class="row" v-if="!mobile">
-      <div
-        class="rating transition"
-        v-if="user.role.allowRating && rating != false"
-      >
-        <div class="ratingChartEnclosure transition">
-          <canvas id="ratingChart"></canvas>
-        </div>
-        <div id="chartjs-legend" class="noselect"></div>
-        <div class="ratingControl transition p-4">
-          <div class="form-group transition">
-            Mostrar:
-            <select id="ratingRange">
-              <option value="15@minutes" selected="selected"
-                >Los últimos 15 minutos</option
-              >
-              <option value="1@hours">La última hora</option>
-              <option value="24@hours">Las últimas 24 horas</option>
-              <option value="7@days">Los últimos 7 días</option>
-              <option value="30@days">Los últimos 30 días</option>
-            </select>
-          </div>
-          <div class="form-group transition">
-            Por:
-            <select id="ratingUnit">
-              <option value="minute" selected="selected">Minuto</option>
-              <option value="hour">Hora</option>
-              <option value="day">Día</option>
-            </select>
-          </div>
-        </div>
-      </div>
+      <rating v-if="user.role.allowRating && rating != false" />
     </div>
     <div class="row">
       <div
@@ -246,34 +216,7 @@
       </div>
     </div>
     <div class="row" v-if="user.role.allowRating && rating != false && mobile">
-      <div class="rating transition">
-        <div class="ratingChartEnclosure transition">
-          <canvas id="ratingChart"></canvas>
-        </div>
-        <div id="chartjs-legend" class="noselect"></div>
-        <div class="ratingControl transition p-4">
-          <div class="form-group transition">
-            Mostrar:
-            <select id="ratingRange">
-              <option value="15@minutes" selected="selected"
-                >Los últimos 15 minutos</option
-              >
-              <option value="1@hours">La última hora</option>
-              <option value="24@hours">Las últimas 24 horas</option>
-              <option value="7@days">Los últimos 7 días</option>
-              <option value="30@days">Los últimos 30 días</option>
-            </select>
-          </div>
-          <div class="form-group transition">
-            Por:
-            <select id="ratingUnit">
-              <option value="minute" selected="selected">Minuto</option>
-              <option value="hour">Hora</option>
-              <option value="day">Día</option>
-            </select>
-          </div>
-        </div>
-      </div>
+      <rating v-if="user.role.allowRating && rating != false" />
     </div>
   </div>
 </template>
@@ -284,10 +227,11 @@ import DatePicker from "vue2-datepicker";
 import "vue2-datepicker/index.css";
 import "vue2-datepicker/locale/es";
 import { sendCrop } from "@/helpers/API.js";
+import rating from "@/components/Rating.vue";
 
 export default {
   name: "slider",
-  components: { DatePicker },
+  components: { DatePicker, rating },
   data() {
     return {
       minTime: 0,

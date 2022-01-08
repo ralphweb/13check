@@ -133,7 +133,6 @@ export default {
             let localDiff =
               (that.diff * 1000 + moment(that.time).diff(that.localTime)) /
               1000;
-            console.log("moving cursor", localDiff);
             if (!that.play) that.player.currentTime(localDiff);
           }
         } else if (that.live && that.player != null && !that.isLive) {
