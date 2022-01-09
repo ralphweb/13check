@@ -27,7 +27,7 @@ var routes = [
     }
   },
   {
-    path: '/recover/:token',
+    path: '/password/:token',
     name: 'Recover',
     component: function () {
       return import('../views/Recover.vue')
