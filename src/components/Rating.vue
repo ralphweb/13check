@@ -78,21 +78,43 @@ export default {
             localdatasets.splice(cableindex, 1);
             localdatasets.unshift(cableObj);
 
-            /*
-                        for (var i=0; i<localdatasets.length; i++) {
-                            var active = "";
-                            var backgroundColor = "";
-                            if($(".channel.current").attr("id").indexOf(localdatasets[i].idRating)!=-1) active = ' class="active"';
-                            if(i==0) backgroundColor = 'style="background-color:'+localdatasets[i].borderColor+'"';
-                            var logocanal = localdatasets[i].logo!=undefined?localdatasets[i].logo.replace(/\\/g, "/"):localdatasets[i].logo;
-                            legendHtml.push('<tr'+active+' id="tr'+localdatasets[i].idRating+'" '+backgroundColor+'><td><div class="chart-legend" onclick="updateDataset(event, ' + '\'' + i + '\'' + ', this)" style="background-image:url(' + logocanal + ')"></div></td>');                    
-                            //legendHtml.push('<tr'+active+' id="tr'+localdatasets[i].idRating+'" '+backgroundColor+'><td><div class="chart-legend" style="background-image:url(' + logocanal + ')"></div></td>');                    
-                            if (chart.data.datasets[i].label) {
-                                legendHtml.push('<td class="chart-legend-label-text" onclick="updateDataset(event, ' + '\'' + i + '\'' + ', this)">' + localdatasets[i].label + ' ('+Math.round(localdatasets[i].data[localdatasets[i].data.length-1])+')</td></tr>');
-                                //legendHtml.push('<td class="chart-legend-label-text">' + localdatasets[i].label + ' ('+Math.round(localdatasets[i].data[localdatasets[i].data.length-1])+')</td></tr>');
-                            }                                                                 
-                        } 
-                        */
+            for (var i = 0; i < localdatasets.length; i++) {
+              var active = "";
+              var backgroundColor = "";
+              //if($(".channel.current").attr("id").indexOf(localdatasets[i].idRating)!=-1) active = ' class="active"';
+              if (i == 0)
+                backgroundColor =
+                  'style="background-color:' +
+                  localdatasets[i].borderColor +
+                  '"';
+              var logocanal =
+                localdatasets[i].logo != undefined
+                  ? localdatasets[i].logo.replace(/\\/g, "/")
+                  : localdatasets[i].logo;
+              legendHtml.push(
+                `<tr ${active} id="tr${localdatasets[i].idRating}" ${backgroundColor}><td><div class="chart-legend" onclick="updateDataset(event, '${i}', this)" style="background-image:url(${logocanal})"></div></td>`
+              );
+              console.log(
+                `<tr ${active} id="tr${localdatasets[i].idRating}" ${backgroundColor}><td><div class="chart-legend" onclick="updateDataset(event, '${i}', this)" style="background-image:url(${logocanal})"></div></td>`
+              );
+              //legendHtml.push('<tr'+active+' id="tr'+localdatasets[i].idRating+'" '+backgroundColor+'><td><div class="chart-legend" style="background-image:url(' + logocanal + ')"></div></td>');
+              if (chart.data.datasets[i].label) {
+                legendHtml.push(
+                  '<td class="chart-legend-label-text" onclick="updateDataset(event, ' +
+                    "'" +
+                    i +
+                    "'" +
+                    ', this)">' +
+                    localdatasets[i].label +
+                    " (" +
+                    Math.round(
+                      localdatasets[i].data[localdatasets[i].data.length - 1]
+                    ) +
+                    ")</td></tr>"
+                );
+                //legendHtml.push('<td class="chart-legend-label-text">' + localdatasets[i].label + ' ('+Math.round(localdatasets[i].data[localdatasets[i].data.length-1])+')</td></tr>');
+              }
+            }
 
             legendHtml.push("</table>");
             return legendHtml.join("");
@@ -150,26 +172,6 @@ export default {
   },
   props: {},
   methods: {
-    fillData() {
-      this.datacollection = {
-        labels: [this.getRandomInt(), this.getRandomInt()],
-        datasets: [
-          {
-            label: "Data One",
-            backgroundColor: "#f87979",
-            data: [this.getRandomInt(), this.getRandomInt()],
-          },
-          {
-            label: "Data One",
-            backgroundColor: "#00ffff",
-            data: [this.getRandomInt(), this.getRandomInt()],
-          },
-        ],
-      };
-    },
-    getRandomInt() {
-      return Math.floor(Math.random() * (50 - 5 + 1)) + 5;
-    },
     queryRatingData(callback) {
       var that = this;
       var ratingRange = that.range.split("@");
@@ -182,7 +184,6 @@ export default {
         .clone()
         .tz("America/Santiago")
         .format("YYYY-MM-DD HH:mm");
-      console.log(start, end, that.unit);
       getRating(start, end, that.unit)
         .then((data) => {
           callback(data);
@@ -196,11 +197,28 @@ export default {
       this.dataLoaded = false;
       try {
         that.queryRatingData(function(result) {
-          console.log(result.data);
           that.datasetsFromDB = [];
           if (result.data.length > 0) {
             var ratingSignals = result.data[0];
+            var lastRating = result.data[result.data.length - 1];
+            /** calculate share and update rating in player */
+            delete lastRating["cable"];
+            delete lastRating["hogar"];
+            delete lastRating["timestamp"];
+            delete lastRating["fecha"];
+            delete lastRating["hora"];
+            delete lastRating["id"];
+            delete lastRating["created"];
+            delete lastRating["updated"];
+            var total = 0;
+            Object.keys(lastRating).forEach(function(key) {
+              total += parseFloat(lastRating[key]);
+            });
             that.signals.forEach(function(signal) {
+              signal.rating = Math.round(lastRating[signal.idRating]);
+              signal.share =
+                Math.round((lastRating[signal.idRating] / total) * 100) + "%";
+
               var indexS = Object.keys(ratingSignals).findIndex(
                 (x) => x === signal.idRating
               );
@@ -247,28 +265,6 @@ export default {
             deleted.forEach(function(deletedIndex) {
               that.datacollection.datasets.splice(deletedIndex, 1);
             });
-            /** calculate share and update rating in player */
-            var latestRating = result.data[result.data.length - 1];
-            delete latestRating["cable"];
-            delete latestRating["hogar"];
-            delete latestRating["timestamp"];
-            delete latestRating["fecha"];
-            delete latestRating["hora"];
-            delete latestRating["id"];
-            var total = 0;
-            /*
-            Object.keys(latestRating).forEach(function(key) {
-              total += parseFloat(latestRating[key]);
-            });
-            Object.keys(latestRating).forEach(function(key) {
-              $("#channel" + key)
-                .find(".channel-rating h2")
-                .text(Math.round(latestRating[key]));
-              $("#channel" + key)
-                .find(".channel-share h2")
-                .text(Math.round((latestRating[key] / total) * 100) + "%");
-            });
-            */
             // re-render the chart
             /*
             document.getElementById(
@@ -276,19 +272,10 @@ export default {
             ).innerHTML = chart.generateLegend();*/
           } else {
             that.datacollection.datasets = [];
-            /*document.getElementById(
-              "chartjs-legend"
-            ).innerHTML = chart.generateLegend();*/
             console.log("no rating data for selected date and time");
             that.signals.forEach(function(signal) {
-              /*  
-              $("#channel" + signal.idRating)
-                .find(".channel-rating h2")
-                .text("N/A");
-              $("#channel" + signal.idRating)
-                .find(".channel-share h2")
-                .text("N/A");
-            */
+              delete signal.rating;
+              delete signal.share;
             });
           }
           that.dataLoaded = true;
@@ -309,6 +296,9 @@ export default {
       get() {
         return this.$store.state.signals;
       },
+      set(value) {
+        this.$store.commit("SET_SIGNALS", value);
+      },
     },
   },
   watch: {
@@ -320,6 +310,22 @@ export default {
           oldCurrentTime &&
           newCurrentTime.get("minutes") != oldCurrentTime.get("minutes")
         ) {
+          this.fillRatingData();
+        }
+      },
+    },
+    unit: {
+      immediate: true,
+      handler(newunit, oldunit) {
+        if (newunit && oldunit && newunit != oldunit) {
+          this.fillRatingData();
+        }
+      },
+    },
+    range: {
+      immediate: true,
+      handler(newrange, oldrange) {
+        if (newrange && oldrange && newrange != oldrange) {
           this.fillRatingData();
         }
       },

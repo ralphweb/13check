@@ -38,11 +38,19 @@
       </div>
       <div class="signal-header-rating" v-if="user.role.allowRating">
         <h5>Rating</h5>
-        <h2 :style="'color:' + currentSignals[index].colorBorde">N/A</h2>
+        <h2 :style="'color:' + currentSignals[index].colorBorde">
+          {{
+            currentSignals[index].rating ? currentSignals[index].rating : "N/A"
+          }}
+        </h2>
       </div>
       <div class="signal-header-share" v-if="user.role.allowRating">
         <h5>Share</h5>
-        <h2 :style="'color:' + currentSignals[index].colorBorde">N/A</h2>
+        <h2 :style="'color:' + currentSignals[index].colorBorde">
+          {{
+            currentSignals[index].share ? currentSignals[index].share : "N/A"
+          }}
+        </h2>
       </div>
     </div>
     <div class="signal-player">
