@@ -28,7 +28,7 @@ var routes = [
   },
   {
     path: '/password/:token',
-    name: 'Recover',
+    name: 'Password',
     component: function () {
       return import('../views/Recover.vue')
     }
@@ -120,7 +120,7 @@ const router = new VueRouter({
   
 router.beforeEach((to, from, next) => {
   store.commit('SET_SHOW_MENU', false);
-  if (!Vue.prototype.$session.exists()&&to.path!='/login'&&to.path!='/forgot'&&to.path.indexOf('/recover/')==-1) {
+  if (!Vue.prototype.$session.exists()&&to.path!='/login'&&to.path!='/forgot'&&to.path.indexOf('/password/')==-1) {
     router.push({name:'Login'})
   }
   
