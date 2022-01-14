@@ -239,31 +239,33 @@ const updateCatalog = (id, catalog) => {
 
 /* CROPS */
 const sendCrop = (parameters) => {
-  let crop = {
-    author: parameters.author_id,
-    signal: parameters.signal,
-    timestampStart: parameters.dateini,
-    timestampEnd: parameters.dateend,
-  };
-  api
-    .post("/crop", crop)
-    .then((response) => {
-      delete parameters.author_id;
-      delete parameters.signal;
-      apilocal
-        .post("/crop/" + parameters.ipServer + "/crop", parameters)
-        .then((result) => {
-          return result;
-        })
-        .catch((err) => {
-          console.log(err);
-          return err;
-        });
-    })
-    .catch((err) => {
-      console.log(err);
-      return err;
-    });
+  return new Promise((resolve, reject) => {
+    let crop = {
+      author: parameters.author_id,
+      signal: parameters.signal,
+      timestampStart: parameters.dateini,
+      timestampEnd: parameters.dateend,
+    };
+    api
+      .post("/crop", crop)
+      .then((response) => {
+        delete parameters.author_id;
+        delete parameters.signal;
+        apilocal
+          .post("/crop/" + parameters.ipServer + "/crop", parameters)
+          .then((result) => {
+            resolve(result);
+          })
+          .catch((err) => {
+            console.log(err);
+            reject(err);
+          });
+      })
+      .catch((err) => {
+        console.log(err);
+        reject(err);
+      });
+  });
 };
 
 const getCrops = (user) => {

@@ -1,13 +1,13 @@
 <template>
-  <div class="rating transition">
-    <div class="ratingChartEnclosure transition">
+  <div class="rating transition mt-4 pt-4">
+    <div class="ratingChartEnclosure transition w-100 h-100">
       <line-chart
         :chart-data="datacollection"
         :options="options"
         v-if="dataLoaded"
+        class="w-100 d-inline h-100"
       ></line-chart>
     </div>
-    <div id="chartjs-legend" class="noselect"></div>
     <div class="ratingControl transition p-4">
       <div class="form-group transition">
         Mostrar:
@@ -52,6 +52,7 @@ export default {
       options: {
         //aspectRatio: 1.75,
         responsive: true,
+        maintainAspectRatio: false,
         legendCallback: function(chart) {
           if (chart.data.datasets.length > 0) {
             var legendHtml = [];
@@ -337,6 +338,6 @@ export default {
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped lang="scss">
 .rating {
-  margin-top: 2em;
+  max-height: 800px;
 }
 </style>
