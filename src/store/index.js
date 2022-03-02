@@ -9,6 +9,7 @@ export default new Vuex.Store({
     live: true,
     play: true,
     muted: false,
+    range: false,
     availableSignals: [],
     currentSignals: [],
     time: Date.now(),
@@ -33,6 +34,9 @@ export default new Vuex.Store({
     },
     SET_PLAY(state, value) {
       state.play = value;
+    },
+    SET_RANGE(state, value) {
+      state.range = value;
     },
     SET_MUTED(state, value) {
       state.muted = value;

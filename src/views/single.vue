@@ -1,25 +1,18 @@
 <template>
   <div
-    v-bind:class="{ 'container-fluid app transition fadeInDown w-100': true }"
+    v-bind:class="{
+      'transition fadeInDown': true,
+    }"
     ref="container"
   >
-    <div
-      :style="{ width: '60vw', minWidth: '60vw', maxWidth: '60vw' }"
-      class="fadeIn catalog"
-    >
-      <signal
-        :ref="'signal'"
-        :index="0"
-        v-bind:key="i"
-        v-for="(signal, i) in [currentSignals[0]]"
-        header="left"
-      />
-    </div>
-    <div :style="{ width: '40vw' }">
-      <slider class="w-100" :rating="true" :crop="true" />
-    </div>
-    <div class="row" v-if="isMobile">
-      <div class="col-12">
+    <div class="row">
+      <div
+        v-bind:class="{
+          'transition fadeIn col-12': true,
+          'col-lg-8': !range,
+          'col-lg-6': range,
+        }"
+      >
         <signal
           :ref="'signal'"
           :index="0"
@@ -27,14 +20,21 @@
           v-for="(signal, i) in [currentSignals[0]]"
           header="left"
         />
-        <slider :rating="true" :crop="true" :mobile="isMobile" />
+      </div>
+      <div
+        v-bind:class="{
+          'transition fadeIn col-12': true,
+          'col-lg-4': !range,
+          'col-lg-6': range,
+        }"
+      >
+        <slider class="w-100" :rating="true" :crop="true" />
       </div>
     </div>
   </div>
 </template>
 
 <script>
-import store from "@/store";
 import moment from "moment";
 import Slider from "@/components/Slider.vue";
 import Loader from "@/components/Loader.vue";
@@ -240,6 +240,11 @@ export default {
         } else {
           return null;
         }
+      },
+    },
+    range: {
+      get() {
+        return this.$store.state.range;
       },
     },
     signals: {

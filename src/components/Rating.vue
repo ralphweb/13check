@@ -10,7 +10,7 @@
     </div>
     <div class="ratingControl transition p-4">
       <div class="form-group transition">
-        Mostrar:
+        <span>Mostrar:</span>
         <select id="ratingRange" v-model="range">
           <option value="15@minutes" selected="selected"
             >Los últimos 15 minutos</option
@@ -22,7 +22,7 @@
         </select>
       </div>
       <div class="form-group transition">
-        Por:
+        <span>Por:</span>
         <select id="ratingUnit" v-model="unit">
           <option value="minute" selected="selected">Minuto</option>
           <option value="hour">Hora</option>
@@ -339,5 +339,50 @@ export default {
 <style scoped lang="scss">
 .rating {
   max-height: 800px;
+}
+
+.ratingControl {
+  max-height: 80px;
+  height: max-content;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-evenly;
+
+  @media (max-width: 769px) {
+    align-items: flex-start;
+    max-height: 39vh;
+    overflow-y: auto;
+    flex-direction: column;
+  }
+
+  .form-group {
+    margin-bottom: 0px;
+    display: flex;
+    justify-content: center;
+    flex-direction: row;
+    align-items: flex-start;
+    color: white;
+
+    @media (max-width: 769px) {
+      justify-content: space-between;
+      width: 100%;
+    }
+  }
+
+  span {
+    text-align: left;
+  }
+
+  select {
+    background: rgba(0, 0, 0, 0.6);
+    border-color: rgba(0, 0, 0, 0.8);
+    color: white;
+    margin-left: 1rem;
+
+    @media (max-width: 769px) {
+      margin-left: 0px;
+    }
+  }
 }
 </style>

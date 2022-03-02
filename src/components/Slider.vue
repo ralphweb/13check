@@ -1,23 +1,26 @@
 <template>
   <div
     v-bind:class="{
-      'pt-4 mt-4': true,
-      'container px-4': !mobile,
-      'd-flex flex-column': range,
+      'pt-2': true,
+      'd-flex flex-column': true,
     }"
     @keydown.left="sliderKeyLeft"
     @keydown.right="sliderKeyRight"
     @keyup.space="play != play"
   >
-    <div class="row" v-if="!mobile">
-      <rating v-if="user.role.allowRating && rating != false" />
+    <div
+      class="rating-wrapper pt-4 mt-4"
+      v-if="user.role.allowRating && rating != false"
+    >
+      <rating />
     </div>
-    <div class="row">
+    <div
+      class="slider-wrapper d-flex flex-row flex-nowrap justify-content-around px-2"
+    >
       <div
         v-bind:class="{
           'transition text-light overflow-hidden text-nowrap datetime': true,
           'p-0 col-0': !range,
-          'col-2': range,
         }"
         @click="openStartDatepicker = true"
       >
@@ -42,9 +45,7 @@
       </div>
       <div
         v-bind:class="{
-          'transition d-flex align-items-center': true,
-          'col-10': !range,
-          'col-8': range,
+          'transition d-flex align-items-center fluid': true,
         }"
       >
         <vue-slider
@@ -70,7 +71,7 @@
       </div>
       <div
         v-bind:class="{
-          'transition text-light overflow-hidden text-nowrap col-2 datetime': true,
+          'transition text-light overflow-hidden text-nowrap datetime': true,
         }"
         @click="openEndDatepicker = true"
       >
@@ -95,7 +96,9 @@
         ></date-picker>
       </div>
     </div>
-    <div class="row d-flex flex-row justify-content-around">
+    <div
+      class="slider-wrapper-2 d-flex flex-column justify-content-around px-2"
+    >
       <div class="btn-group col-12 mt-2" role="group" aria-label="toolbar">
         <button
           type="button"
@@ -215,9 +218,6 @@
         </button>
       </div>
     </div>
-    <div class="row" v-if="user.role.allowRating && rating != false && mobile">
-      <rating v-if="user.role.allowRating && rating != false" />
-    </div>
   </div>
 </template>
 
@@ -239,7 +239,6 @@ export default {
       startTime: 0,
       playTime: 0,
       endTime: 100,
-      range: false,
       openStartDatepicker: false,
       openEndDatepicker: false,
       tick: 1000,
@@ -266,6 +265,14 @@ export default {
       },
       set(value) {
         this.$store.commit("SET_LIVE", value);
+      },
+    },
+    range: {
+      get() {
+        return this.$store.state.range;
+      },
+      set(value) {
+        this.$store.commit("SET_RANGE", value);
       },
     },
     play: {
@@ -518,11 +525,11 @@ export default {
       sendCrop(body)
         .then((result) => {
           console.log(result);
+          alert('Clip agregado a la cola. Revise su estado en "Mis Clips"');
           store.commit("SET_IS_LOADING", false);
         })
         .catch((err) => {
           console.log(err);
-          alert("Error en crop");
           store.commit("SET_IS_LOADING", false);
         });
     },
@@ -711,10 +718,15 @@ export default {
   width: 0% !important;
   flex-basis: 0% !important;
   max-width: 0% !important;
+  min-width: 0% !important;
 }
 
 .transition {
   transition: all 500ms ease-in-out;
+}
+
+.fluid {
+  flex: 1 1 auto;
 }
 
 .datetime {
@@ -723,6 +735,7 @@ export default {
   align-items: center;
   justify-content: center;
   cursor: pointer;
+  flex: 0 0 9em;
 
   &:hover {
     color: #f86423 !important;
@@ -751,7 +764,7 @@ export default {
 }
 
 .popup {
-  margin-left: -100px;
+  margin-left: -160px;
 }
 
 .disabled {
@@ -835,30 +848,32 @@ $color-middark: #151515;
       }
     }
   }
+}
 
-  .ratingControl {
-    max-height: 80px;
-    height: max-content;
-    width: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: space-evenly;
+.slider-wrapper {
+  order: 1;
+  max-width: 100vw;
+  position: sticky;
+  bottom: 0px;
+}
+.slider-wrapper-2 {
+  order: 2;
+  max-width: 100vw;
+}
+.rating-wrapper {
+  order: 3;
+  max-width: 100vw;
+}
 
-    .form-group {
-      margin-bottom: 0px;
-      display: flex;
-      justify-content: center;
-      flex-direction: row;
-      align-items: flex-start;
-      color: white;
-    }
-
-    select {
-      background: rgba(0, 0, 0, 0.6);
-      border-color: rgba(0, 0, 0, 0.8);
-      color: white;
-      margin-left: 1rem;
-    }
+@media (min-width: 992px) {
+  .rating-wrapper {
+    order: 1;
+  }
+  .slider-wrapper {
+    order: 2;
+  }
+  .slider-wrapper-2 {
+    order: 3;
   }
 }
 </style>

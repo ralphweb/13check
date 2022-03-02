@@ -1,25 +1,32 @@
 <template>
-  <div v-bind:class="{ 'container-fluid app transition fadeInDown': true }">
-    <div class="col fadeIn first signals">
-      <signal
-        :ref="'signal'"
-        :index="i"
-        v-bind:key="i"
-        v-for="(signal, i) in signalsLeft"
-        header="left"
-      />
-    </div>
-    <div class="col fadeIn first signals">
-      <signal
-        :ref="'signal'"
-        :index="i + 2"
-        v-bind:key="i"
-        v-for="(signal, i) in signalsRight"
-        header="left"
-      />
-    </div>
-    <div class="col middle fadeIn second">
-      <slider :rating="true" />
+  <div
+    v-bind:class="{
+      'transition fadeInDown': true,
+    }"
+    ref="container"
+  >
+    <div class="row">
+      <div class="col fadeIn first signals">
+        <signal
+          :ref="'signal'"
+          :index="i"
+          v-bind:key="i"
+          v-for="(signal, i) in signalsLeft"
+          header="left"
+        />
+      </div>
+      <div class="col fadeIn first signals">
+        <signal
+          :ref="'signal'"
+          :index="i + 2"
+          v-bind:key="i"
+          v-for="(signal, i) in signalsRight"
+          header="left"
+        />
+      </div>
+      <div class="col middle fadeIn second">
+        <slider :rating="true" />
+      </div>
     </div>
   </div>
 </template>
@@ -183,59 +190,20 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-$breakpoint-tablet: 735px;
+.row {
+  .signals:nth-of-type(2) {
+    order: 3;
+  }
+  .middle {
+    order: 1;
+  }
 
-.app {
-  grid-area: app;
-  display: grid;
-  width: 100vw;
-  grid-template-columns: 1fr minmax(400px, 650px) 1fr;
-  grid-template-rows: minmax(min-content, max-content);
-  grid-template-areas: "col1 middle col2";
-  padding: 0px;
-  overflow-y: auto;
-  overflow-x: hidden;
-  -webkit-overflow-scrolling: touch;
-
-  .col {
-    height: 100%;
-    padding: 0px;
-
-    &.signals {
-      display: flex;
-      flex-direction: column;
-
-      &:first-of-type {
-        grid-area: col1;
-      }
-      &:last-of-type {
-        grid-area: col2;
-      }
+  @media (max-width: 769px) {
+    .signals:nth-of-type(2) {
+      order: 2;
     }
-
-    &.middle {
-      grid-area: middle;
-      min-height: 80px;
-
-      @media only screen and (hover: none) and (pointer: coarse) and (orientation: portrait) {
-        position: fixed;
-        bottom: 0vh;
-        width: 100vw;
-        height: 60px;
-        min-height: 60px;
-        -webkit-backface-visibility: hidden;
-        transform: translate3d(0, 0, 0);
-      }
-
-      @media only screen and (hover: none) and (pointer: coarse) and (orientation: landscape) {
-        position: fixed;
-        bottom: -60px;
-        width: 100vw;
-        height: 60px;
-        min-height: 60px;
-        -webkit-backface-visibility: hidden;
-        transform: translate3d(0, 0, 0);
-      }
+    .middle {
+      order: 3;
     }
   }
 }
